@@ -1,0 +1,11 @@
+configuration {
+    modi: "drun,run,window,ssh";
+    font: "JetBrainsMono Nerd Font 10";
+    show-icons: true;
+    icon-theme: "Papirus-Dark";
+    location: 0;
+    opacity: 90;
+    sidebar-mode: false;
+}
+
+@theme "~/.config/rofi/themes/oxh.rasi"
