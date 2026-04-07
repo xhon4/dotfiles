@@ -48,9 +48,9 @@
     timeout = 4
 
 [volume]
-    summary = "Volumen"
+    summary = "Volume"
     appname = "volume"
 
 [brightness]
-    summary = "Brillo"
+    summary = "Brightness"
     appname = "brightness"

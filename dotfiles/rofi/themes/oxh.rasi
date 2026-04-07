@@ -6,8 +6,7 @@
     selected-fg:        #000000;
     border:             #21252e;
     
-    /* Font with fallback for icons */
-    font: "JetBrainsMono Nerd Font 12, Terminus 12"; 
+    font: "JetBrainsMono Nerd Font 12, Terminus 12";
     text-color: @foreground;
 }
 
@@ -16,7 +15,7 @@ window {
     background-color: @background;
     border: 0px;
     border-color: @border;
-    border-radius: 0px; 
+    border-radius: 0px;
     padding: 10px;
     width: 600px;
 }
@@ -26,7 +25,7 @@ mainbox {
     background-color: @background;
     border: 0px;
     padding: 0px;
-    spacing: 10px; /* Spacing between input and list */
+    spacing: 10px;
 }
 
 /* Input Bar */
@@ -69,7 +68,7 @@ element {
     background-color: @background;
     text-color: @foreground;
     border: 0px;
-    spacing: 10px; /* Spacing between icon and text */
+    spacing: 10px;
 }
 
 /* Selected Element */
@@ -92,6 +91,6 @@ element-text {
 element-icon {
     background-color: transparent;
     text-color: transparent;
-    size: 1.2em; /* Icon size adjusted to font */
+    size: 1.2em;
     border: 0px;
 }

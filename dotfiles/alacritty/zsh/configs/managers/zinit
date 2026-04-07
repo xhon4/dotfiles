@@ -1,19 +1,19 @@
-# --- Auto-instalación de Zinit ---
+# --- Zinit Auto-installation ---
 if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
-    print -P "%F{33}▓▒░ %F{220}Instalando Zinit (gestor de plugins)...%f"
+    print -P "%F{33}▓▒░ %F{220}Installing Zinit (plugin manager)...%f"
     command mkdir -p "$HOME/.local/share/zinit" && command chmod g-rwX "$HOME/.local/share/zinit"
     command git clone https://github.com/zdharma-continuum/zinit.git "$HOME/.local/share/zinit/zinit.git" && \
-        print -P "%F{33}▓▒░ %F{34}Instalación finalizada.%f" || \
-        print -P "%F{160}▓▒░ %F{160}Error en la instalación.%f"
+        print -P "%F{33}▓▒░ %F{34}Installation complete.%f" || \
+        print -P "%F{160}▓▒░ %F{160}Installation error.%f"
 fi
 
-# --- Carga de Zinit ---
+# --- Load Zinit ---
 source "~/.local/share/zinit/zinit.git/zinit.zsh"
 autoload -Uz _zinit
 (( ${+functions[_zinit]} )) && _zinit
 
-# --- Plugins Básicos ---
-# Estos son los que suelen usar los estudiantes de ingeniería para productividad:
+# --- Essential Plugins ---
+# These are the ones commonly used by engineering students for productivity:
 # oxh-hyprland-dotfiles by occhi
 # Zinit plugin manager auto-install and basic plugins
 if [[ ! -f ~/.local/share/zinit/zinit.git/zinit.zsh ]]; then

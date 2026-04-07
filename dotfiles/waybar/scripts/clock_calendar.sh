@@ -7,7 +7,7 @@ import datetime, calendar, json, subprocess, shutil, re
 now = datetime.date.today()
 
 events_text = []
-MAX_LINE = 42 # Límite estricto de caracteres para que no se desborde la caja
+MAX_LINE = 42 # Strict limit of characters to prevent overflow of the box
 
 if shutil.which("gcalcli"):
     try:
@@ -16,7 +16,7 @@ if shutil.which("gcalcli"):
         end_date = (datetime.date(now.year, now.month, last_day) + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
 
         out = subprocess.run(
-            ["gcalcli", "agenda", start_date, end_date, "--nocolor", "--nodeclined"],
+            ["gcalcli", "schedule", start_date, end_date, "--nocolor", "--nodeclined"],
             capture_output=True, text=True, timeout=8
         ).stdout
 
@@ -33,13 +33,10 @@ if shutil.which("gcalcli"):
                     
                 safe_line = line.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
                 
-                # 3. Aplicamos un tamaño de fuente menor ("smaller") a las notas
                 events_text.append(f'<span foreground="#BFBFBF" size="smaller">{safe_line}</span>')
     except Exception:
         pass
 
-# Calculamos el ancho de la línea para centrar el calendario arriba.
-# Como la fuente de abajo es "smaller", su ancho visual es aprox 85% del texto normal.
 clean_lines = [re.sub(r'<[^>]+>', '', e) for e in events_text]
 max_char_len = max([len(l) for l in clean_lines] + [20])
 
@@ -73,14 +70,13 @@ for i, line in enumerate(raw_cal.splitlines()):
 
 calendar_markup = "\n".join(result_cal)
 
-# El separador también se ajusta al ancho visual para que no sobrepase
 div_line = "─" * max(20, visual_len)
 divider = f'\n<span foreground="{DIM}">{div_line}</span>\n'
 
 if events_text:
     gcal_section = divider + "\n".join(events_text)
 else:
-    gcal_section = divider + f'<span foreground="{DIM}" size="smaller">Sin eventos este mes</span>'
+    gcal_section = divider + f'<span foreground="{DIM}" size="smaller">without events this month...</span>'
 
 tooltip = f"<tt><span size='10pt'>{calendar_markup}</span>{gcal_section}</tt>"
 time_text = datetime.datetime.now().strftime("%I:%M %p").lstrip("0")

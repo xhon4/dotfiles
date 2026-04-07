@@ -83,7 +83,7 @@
 
     "network": {
         "format-ethernet": "󰛳",
-        "format-disconnected": "󰈂  Desconectado",
+        "format-disconnected": "󰈂  Disconnected",
         "format-wifi": "󰛳",
         "interval": 1,
         "tooltip": false
