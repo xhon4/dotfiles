@@ -1,0 +1,9 @@
+name: alacritty
+description: Alacritty GPU-accelerated terminal
+category: terminal
+
+pacman:
+  - alacritty
+
+depends:
+  - zsh

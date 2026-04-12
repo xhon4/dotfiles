@@ -1,0 +1,9 @@
+name: cava
+description: Console-based audio visualizer
+category: audio
+
+pacman:
+  - cava
+
+depends:
+  - pipewire

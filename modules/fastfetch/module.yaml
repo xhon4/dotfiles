@@ -1,0 +1,8 @@
+name: fastfetch
+description: Fast system info tool
+category: tools
+
+pacman:
+  - fastfetch
+
+depends: []

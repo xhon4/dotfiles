@@ -1,0 +1,62 @@
+name: full
+description: Full rice — Hyprland + all modules + aesthetics
+variant: auto
+
+base-packages:
+  - git
+  - curl
+  - wget
+  - unzip
+  - rsync
+  - jq
+  - p7zip
+  - fd
+  - ripgrep
+  - fzf
+  - eza
+  - bat
+  - python-dateutil
+
+modules:
+  - zsh
+  - alacritty
+  - hyprland
+  - waybar
+  - dunst
+  - rofi
+  - btop
+  - cava
+  - fastfetch
+  - yazi
+  - sddm
+  - pipewire
+  - gpu-amd
+  - gtk
+  - kitty
+  - kvantum
+  - qt6ct
+
+fonts:
+  - noto-fonts
+  - noto-fonts-cjk
+  - noto-fonts-emoji
+  - ttf-font-awesome
+  - ttf-jetbrains-mono-nerd
+
+aur-fonts:
+  - ttf-terminus-font
+
+networking:
+  - networkmanager
+  - network-manager-applet
+  - bluez
+  - bluez-utils
+  - blueman
+
+networking-services:
+  - NetworkManager
+  - bluetooth
+
+extras-aur:
+  - wlogout
+  - gcalcli

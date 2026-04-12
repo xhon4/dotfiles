@@ -1,0 +1,15 @@
+name: pipewire
+description: PipeWire audio stack
+category: audio
+
+pacman:
+  - pipewire
+  - pipewire-pulse
+  - pipewire-alsa
+  - pipewire-jack
+  - wireplumber
+  - pavucontrol
+  - pamixer
+  - playerctl
+
+depends: []

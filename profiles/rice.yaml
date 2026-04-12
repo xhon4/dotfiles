@@ -1,0 +1,37 @@
+name: rice
+description: Aesthetic rice only — WM + bar + theming (no dev tools)
+variant: auto
+
+base-packages:
+  - git
+  - curl
+  - wget
+  - unzip
+  - rsync
+
+modules:
+  - zsh
+  - alacritty
+  - hyprland
+  - waybar
+  - dunst
+  - rofi
+  - cava
+  - fastfetch
+  - pipewire
+  - gpu-amd
+  - gtk
+  - kitty
+  - kvantum
+  - qt6ct
+  - sddm
+
+fonts:
+  - noto-fonts
+  - noto-fonts-cjk
+  - noto-fonts-emoji
+  - ttf-font-awesome
+  - ttf-jetbrains-mono-nerd
+
+aur-fonts:
+  - ttf-terminus-font

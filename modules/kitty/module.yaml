@@ -1,0 +1,8 @@
+name: kitty
+description: Kitty GPU-accelerated terminal emulator
+category: terminal
+
+pacman:
+  - kitty
+
+depends: []

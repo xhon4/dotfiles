@@ -1,0 +1,30 @@
+name: hyprland
+description: Hyprland compositor with hypridle, hyprlock, hyprpaper
+category: wm
+config_dir: hypr
+
+pacman:
+  - hyprland
+  - xdg-desktop-portal-hyprland
+  - xdg-desktop-portal-gtk
+  - qt5-wayland
+  - qt6-wayland
+  - qt5-quickcontrols
+  - qt5-quickcontrols2
+  - qt5-graphicaleffects
+  - polkit-kde-agent
+  - hypridle
+  - hyprlock
+  - hyprpaper
+  - wl-clipboard
+  - wtype
+  - grim
+  - slurp
+
+aur:
+  - hyprshot
+
+depends:
+  - dunst
+  - waybar
+  - rofi

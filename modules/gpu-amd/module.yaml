@@ -1,0 +1,7 @@
+name: gpu-amd
+description: AMD GPU optimizations (Mesa, RADV)
+category: system
+
+pacman: []
+
+depends: []

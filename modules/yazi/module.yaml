@@ -1,0 +1,8 @@
+name: yazi
+description: Terminal file manager
+category: tools
+
+pacman:
+  - yazi
+
+depends: []

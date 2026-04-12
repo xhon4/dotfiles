@@ -1,0 +1,11 @@
+name: sddm
+description: SDDM display manager with OXH theme
+category: system
+
+pacman:
+  - sddm
+
+services:
+  - sddm
+
+depends: []

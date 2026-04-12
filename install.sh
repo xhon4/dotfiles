@@ -1,212 +1,105 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# ================================================================
+#  OXH Dotfiles-as-a-Platform — Bootstrap Installer
+#  Usage: curl -sL https://raw.githubusercontent.com/xhon4/dotfiles/main/install.sh | bash
+#  Or:    ./install.sh [--profile=NAME] [--variant=pc|laptop]
+# ================================================================
+
+set -euo pipefail
+
+# Colors
+C_RESET='\e[0m'; C_BLUE='\e[34m'; C_GREEN='\e[32m'; C_YELLOW='\e[33m'; C_RED='\e[31m'; C_BOLD='\e[1m'; C_CYAN='\e[36m'
+
+info()    { echo -e "${C_BLUE}[>]${C_RESET} $1"; }
+success() { echo -e "${C_GREEN}[✓]${C_RESET} $1"; }
+warn()    { echo -e "${C_YELLOW}[!]${C_RESET} $1"; }
+error()   { echo -e "${C_RED}[✗]${C_RESET} $1"; exit 1; }
 
 # ================================================================
-#   OXH BRUTALIST INSTALLER v6.5 (clean, safe, modular)
+# BANNER
 # ================================================================
 
-set -e
+echo -e "${C_BOLD}${C_CYAN}"
+cat <<'BANNER'
 
-# ---------------- CONFIG ----------------
-DRY_RUN=false
-PROFILE=""
-LOG_FILE="install.log"
+   ██████╗ ██╗  ██╗██╗  ██╗
+  ██╔═══██╗╚██╗██╔╝██║  ██║
+  ██║   ██║ ╚███╔╝ ███████║
+  ██║   ██║ ██╔██╗ ██╔══██║
+  ╚██████╔╝██╔╝ ██╗██║  ██║
+   ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝
+   Dotfiles as a Platform
 
-# ---------------- FLAGS ----------------
-for arg in "$@"; do
-  case $arg in
-    --dry-run) DRY_RUN=true ;;
-    --profile=*) PROFILE="${arg#*=}" ;;
-  esac
-done
+BANNER
+echo -e "${C_RESET}"
 
-# ---------------- LOGGING ----------------
-exec > >(tee -i "$LOG_FILE")
-exec 2>&1
+# ================================================================
+# OS CHECK
+# ================================================================
 
-# ---------------- HELPERS ----------------
-run() {
-  if $DRY_RUN; then
-    echo "[DRY] $*"
-  else
-    eval "$@"
-  fi
-}
-
-info() { echo -e "\e[34m[>]\e[0m $1"; }
-success() { echo -e "\e[32m[✓]\e[0m $1"; }
-warn() { echo -e "\e[33m[!]\e[0m $1"; }
-error() { echo -e "\e[31m[✗]\e[0m $1"; }
-
-# ---------------- CHECKS ----------------
-[[ $EUID -eq 0 ]] && { error "Do not run as root"; exit 1; }
-
-if ! ping -c 1 archlinux.org &>/dev/null; then
-  error "No internet connection"
-  exit 1
+if [[ ! -f /etc/os-release ]]; then
+    error "Cannot detect OS"
 fi
 
-# ---------------- PROFILE ----------------
-if [[ -z "$PROFILE" ]]; then
-  echo "[1] PC"
-  echo "[2] Laptop"
-  read -p "Select profile: " choice
-  [[ "$choice" == "1" ]] && PROFILE="pc"
-  [[ "$choice" == "2" ]] && PROFILE="laptop"
+source /etc/os-release
+
+if [[ "$ID" != "arch" ]]; then
+    error "This installer requires Arch Linux (detected: $ID)"
 fi
 
-[[ -z "$PROFILE" ]] && { error "Invalid profile"; exit 1; }
-
-info "Selected profile: $PROFILE"
-
-# ---------------- SUDO KEEP ALIVE ----------------
-sudo -v
-while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+success "Arch Linux detected ($PRETTY_NAME)"
 
 # ================================================================
-# PACKAGES
+# USER CHECK
 # ================================================================
 
-PACMAN_PKGS=(
-  hyprland xdg-desktop-portal-hyprland xdg-desktop-portal-gtk
-  qt5-wayland qt6-wayland qt5-quickcontrols qt5-quickcontrols2 qt5-graphicaleffects
-  polkit-kde-agent hypridle hyprlock hyprpaper
-  sddm waybar dunst libnotify
-  alacritty zsh zsh-completions
-  pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber pavucontrol pamixer playerctl
-  bluez bluez-utils blueman
-  networkmanager network-manager-applet
-  fastfetch yazi btop cava eza bat fzf fd ripgrep jq p7zip rsync git curl wget unzip
-  wl-clipboard wtype grim slurp
-  noto-fonts noto-fonts-cjk noto-fonts-emoji ttf-font-awesome ttf-jetbrains-mono-nerd
-  python-dateutil
-)
-
-AUR_PKGS=(
-  rofi-wayland ttf-terminus-font hyprshot wlogout gcalcli
-)
-
-install_pkgs() {
-  local manager="$1"; shift
-  for pkg in "$@"; do
-    if pacman -Qq "$pkg" &>/dev/null; then
-      success "$pkg already installed"
-    else
-      run "$manager -S --noconfirm --needed $pkg" || warn "Failed: $pkg"
-    fi
-  done
-}
-
-# Install yay if missing
-if ! command -v yay &>/dev/null; then
-  info "Installing yay..."
-  run "sudo pacman -S --needed --noconfirm base-devel git"
-  run "git clone https://aur.archlinux.org/yay.git /tmp/yay-build"
-  run "cd /tmp/yay-build && makepkg -si --noconfirm"
-fi
-
-info "Installing packages..."
-install_pkgs "sudo pacman" "${PACMAN_PKGS[@]}"
-install_pkgs "yay" "${AUR_PKGS[@]}"
-
-# ================================================================
-# SERVICES
-# ================================================================
-
-info "Enabling services"
-
-services=(sddm NetworkManager bluetooth)
-for s in "${services[@]}"; do
-  run "sudo systemctl enable $s"
-done
-
-# ================================================================
-# DOTFILES DEPLOY (SAFE)
-# ================================================================
-
-info "Deploying configs (common + variant)"
-
-mkdir -p "$HOME/.config"
-
-run "rsync -ah configs/common/ $HOME/.config/"
-run "rsync -ah configs/variants/$PROFILE/ $HOME/.config/"
-
-run "find $HOME/.config -name '*.sh' -exec chmod +x {} +"
-
-# ================================================================
-# ZSH SETUP
-# ================================================================
-
-if [[ "$SHELL" != "$(command -v zsh)" ]]; then
-  info "Setting zsh as default shell"
-  run "chsh -s $(command -v zsh)"
-fi
-
-ZINIT_HOME="$HOME/.local/share/zinit/zinit.git"
-if [[ ! -d "$ZINIT_HOME" ]]; then
-  info "Installing Zinit"
-  run "git clone https://github.com/zdharma-continuum/zinit.git $ZINIT_HOME"
+if [[ $EUID -eq 0 ]]; then
+    error "Do not run as root. Use a normal user with sudo access."
 fi
 
 # ================================================================
-# GPU DETECTION
+# INTERNET CHECK
 # ================================================================
 
-if lspci | grep -qi amd; then
-  warn "AMD GPU detected"
+if ! ping -c 1 -W 3 archlinux.org &>/dev/null; then
+    error "No internet connection"
 fi
 
+success "Internet connection OK"
+
 # ================================================================
-# GCALCLI SETUP
+# DEPENDENCIES
 # ================================================================
 
-read -p "Setup Google Calendar integration now? [y/N]: " gcal
-if [[ "$gcal" =~ ^[Yy]$ ]]; then
-  gcalcli list
+info "Installing bootstrap dependencies..."
+sudo pacman -S --needed --noconfirm git rsync curl base-devel
+
+# ================================================================
+# CLONE / UPDATE REPO
+# ================================================================
+
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
+REPO_URL="${REPO_URL:-https://github.com/xhon4/dotfiles.git}"
+
+if [[ -d "$DOTFILES_DIR" ]]; then
+    info "Dotfiles repo found at $DOTFILES_DIR"
+    cd "$DOTFILES_DIR"
+    git pull --rebase || warn "Git pull failed, using existing version"
+else
+    info "Cloning dotfiles repo..."
+    git clone "$REPO_URL" "$DOTFILES_DIR"
+    cd "$DOTFILES_DIR"
 fi
 
-# ================================================================
-# WALLPAPER
-# ================================================================
-
-if [[ -f "assets/wallpaper.jpg" ]]; then
-  run "sudo mkdir -p /usr/share/backgrounds"
-  run "sudo cp assets/wallpaper.jpg /usr/share/backgrounds/oxh-wallpaper.jpg"
-fi
+success "Dotfiles ready at $DOTFILES_DIR"
 
 # ================================================================
-# SDDM THEME
+# HAND OFF TO RICECTL
 # ================================================================
 
-SDDM_THEME_DIR="/usr/share/sddm/themes/oxh-sddm"
+chmod +x "$DOTFILES_DIR/ricectl"
 
-if [[ -d "system/sddm-theme" ]]; then
-  run "sudo mkdir -p $SDDM_THEME_DIR"
-  run "sudo cp -r system/sddm-theme/* $SDDM_THEME_DIR/"
+info "Launching ricectl..."
+echo ""
 
-  if [[ ! -f /etc/sddm.conf.d/theme.conf ]]; then
-    run "echo -e '[Theme]\nCurrent=oxh-sddm' | sudo tee /etc/sddm.conf.d/theme.conf"
-  fi
-fi
-
-# ================================================================
-# GTK SETTINGS
-# ================================================================
-
-mkdir -p "$HOME/.config/gtk-3.0"
-mkdir -p "$HOME/.config/gtk-4.0"
-
-cat > "$HOME/.config/gtk-3.0/settings.ini" <<EOF
-[Settings]
-gtk-application-prefer-dark-theme=1
-gtk-cursor-theme-name=Adwaita
-gtk-icon-theme-name=Adwaita
-EOF
-
-cp "$HOME/.config/gtk-3.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini"
-
-# ================================================================
-# DONE
-# ================================================================
-
-success "Installation complete"
-echo "Reboot recommended"
+exec "$DOTFILES_DIR/ricectl" install "$@"

@@ -1,0 +1,8 @@
+name: qt6ct
+description: Qt6 configuration tool
+category: theming
+
+pacman:
+  - qt6ct
+
+depends: []

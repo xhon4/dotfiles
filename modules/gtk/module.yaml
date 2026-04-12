@@ -1,0 +1,9 @@
+name: gtk
+description: GTK dark theme configuration
+category: theming
+
+pacman:
+  - gtk3
+  - gtk4
+
+depends: []

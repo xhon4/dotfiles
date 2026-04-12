@@ -1,0 +1,8 @@
+name: rofi
+description: Rofi application launcher (Wayland)
+category: launcher
+
+aur:
+  - rofi-wayland
+
+depends: []

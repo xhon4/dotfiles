@@ -1,0 +1,826 @@
+#!/usr/bin/env bash
+# ================================================================
+#  ricectl — Dotfiles as a Platform CLI
+#  Usage: ricectl <command> [options]
+# ================================================================
+
+set -euo pipefail
+
+RICECTL_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source libraries
+source "$RICECTL_ROOT/lib/core.sh"
+source "$RICECTL_ROOT/lib/os.sh"
+source "$RICECTL_ROOT/lib/packages.sh"
+source "$RICECTL_ROOT/lib/deploy.sh"
+source "$RICECTL_ROOT/lib/tui.sh"
+
+# ================================================================
+# COMMANDS
+# ================================================================
+
+cmd_install() {
+    local profile=""
+    local variant=""
+    local dry_run=false
+
+    for arg in "$@"; do
+        case "$arg" in
+            --profile=*) profile="${arg#*=}" ;;
+            --variant=*) variant="${arg#*=}" ;;
+            --dry-run)   dry_run=true ;;
+        esac
+    done
+
+    export DRY_RUN="$dry_run"
+
+    tui_header "ricectl install v$RICECTL_VERSION"
+
+    # Checks
+    require_not_root
+    require_internet
+    require_arch
+
+    info "OS: $(detect_os_pretty)"
+    info "GPU: $(detect_gpu)"
+    info "Chassis: $(detect_chassis)"
+
+    # Profile selection
+    if [[ -z "$profile" ]]; then
+        profile="$(tui_select_profile)"
+        if [[ -z "$profile" ]]; then
+            error "No profile selected"
+            exit 1
+        fi
+    fi
+
+    local profile_yaml="$RICECTL_ROOT/profiles/$profile.yaml"
+    if [[ ! -f "$profile_yaml" ]]; then
+        error "Profile not found: $profile"
+        exit 1
+    fi
+
+    info "Profile: $profile"
+
+    # Parse profile
+    parse_yaml "$profile_yaml" "prof"
+
+    # Variant detection
+    if [[ -z "$variant" ]]; then
+        local prof_variant="${prof_variant:-}"
+        if [[ "$prof_variant" == "auto" ]]; then
+            variant="$(detect_chassis)"
+            if [[ "$variant" == "unknown" ]]; then
+                variant="$(tui_select_variant)"
+            fi
+        elif [[ -n "$prof_variant" ]]; then
+            variant="$prof_variant"
+        fi
+    fi
+
+    [[ -n "$variant" ]] && info "Variant: $variant"
+
+    # Show install summary
+    local mod_count
+    mod_count="$(grep -c '^ *- ' "$profile_yaml" || echo 0)"
+    tui_install_summary "$profile" "${variant:-auto}" "$mod_count"
+    echo ""
+    if ! tui_confirm "Proceed with installation?"; then
+        warn "Aborted"
+        exit 0
+    fi
+
+    # Sudo keepalive
+    sudo_keepalive
+
+    # Install base packages
+    header "Base Packages"
+    local base_pkgs
+    base_pkgs=($(yaml_list "prof" "base_packages"))
+    if [[ ${#base_pkgs[@]} -gt 0 ]]; then
+        install_pacman "${base_pkgs[@]}"
+    fi
+
+    # Install fonts
+    local fonts
+    fonts=($(yaml_list "prof" "fonts"))
+    if [[ ${#fonts[@]} -gt 0 ]]; then
+        install_pacman "${fonts[@]}"
+    fi
+
+    local aur_fonts
+    aur_fonts=($(yaml_list "prof" "aur_fonts"))
+    if [[ ${#aur_fonts[@]} -gt 0 ]]; then
+        install_aur "${aur_fonts[@]}"
+    fi
+
+    # Install networking
+    local net_pkgs
+    net_pkgs=($(yaml_list "prof" "networking"))
+    if [[ ${#net_pkgs[@]} -gt 0 ]]; then
+        install_pacman "${net_pkgs[@]}"
+    fi
+
+    local net_services
+    net_services=($(yaml_list "prof" "networking_services"))
+    if [[ ${#net_services[@]} -gt 0 ]]; then
+        enable_services "${net_services[@]}"
+    fi
+
+    # Extra AUR packages
+    local extras_aur
+    extras_aur=($(yaml_list "prof" "extras_aur"))
+    if [[ ${#extras_aur[@]} -gt 0 ]]; then
+        install_aur "${extras_aur[@]}"
+    fi
+
+    # Deploy modules
+    header "Modules"
+    local modules
+    modules=($(yaml_list "prof" "modules"))
+    for mod in "${modules[@]}"; do
+        deploy_module "$mod" "$variant"
+    done
+
+    # Wallpaper
+    if [[ -f "$RICECTL_ROOT/assets/wallpaper.jpg" ]]; then
+        header "Wallpaper"
+        srun "mkdir -p /usr/share/backgrounds"
+        srun "cp '$RICECTL_ROOT/assets/wallpaper.jpg' /usr/share/backgrounds/oxh-wallpaper.jpg"
+        success "Wallpaper deployed"
+    fi
+
+    echo ""
+    header "Installation Complete"
+    success "Profile '$profile' deployed successfully"
+    info "Version: $RICECTL_VERSION"
+    warn "Reboot recommended"
+}
+
+cmd_doctor() {
+    header "ricectl doctor v$RICECTL_VERSION"
+
+    local issues=0
+
+    # OS check
+    local os
+    os="$(detect_os)"
+    if [[ "$os" == "arch" ]]; then
+        success "OS: Arch Linux"
+    else
+        error "OS: $os (expected: arch)"
+        ((issues++)) || true
+    fi
+
+    # Internet
+    if ping -c 1 -W 3 archlinux.org &>/dev/null; then
+        success "Internet: connected"
+    else
+        error "Internet: no connection"
+        ((issues++)) || true
+    fi
+
+    # GPU
+    local gpu
+    gpu="$(detect_gpu)"
+    info "GPU: $gpu"
+
+    # Shell
+    if [[ "$SHELL" == *"zsh"* ]]; then
+        success "Shell: zsh"
+    else
+        warn "Shell: $SHELL (recommended: zsh)"
+        ((issues++)) || true
+    fi
+
+    # Zinit
+    if [[ -d "${XDG_DATA_HOME:-$HOME/.local/share}/zinit/zinit.git" ]]; then
+        success "Zinit: installed"
+    else
+        error "Zinit: not installed"
+        ((issues++)) || true
+    fi
+
+    # Check installed modules
+    header "Module Health"
+    for module_dir in "$RICECTL_ROOT/modules"/*/; do
+        local mod_name
+        mod_name="$(basename "$module_dir")"
+        local mod_yaml="$module_dir/module.yaml"
+        [[ -f "$mod_yaml" ]] || continue
+
+        parse_yaml "$mod_yaml" "doc"
+
+        # Resolve config dir
+        local config_name="${doc_config_dir:-$mod_name}"
+
+        # Check if config exists
+        if [[ -d "$HOME/.config/$config_name" ]] || [[ "$mod_name" == "zsh" ]] || [[ "$mod_name" == "gtk" ]] || [[ "$mod_name" == "gpu-amd" ]] || [[ "$mod_name" == "docker" ]]; then
+            # Check packages
+            local all_ok=true
+            local pacman_pkgs
+            pacman_pkgs=($(yaml_list "doc" "pacman"))
+            for pkg in "${pacman_pkgs[@]}"; do
+                [[ -z "$pkg" ]] && continue
+                if ! pkg_installed "$pkg"; then
+                    error "Module $mod_name: missing package $pkg"
+                    all_ok=false
+                    ((issues++)) || true
+                fi
+            done
+            if $all_ok; then
+                success "Module $mod_name: OK"
+            fi
+        else
+            info "Module $mod_name: not deployed"
+        fi
+    done
+
+    # Services
+    header "Services"
+    for service in sddm NetworkManager bluetooth; do
+        if systemctl is-enabled "$service" &>/dev/null; then
+            success "Service $service: enabled"
+        else
+            warn "Service $service: not enabled"
+        fi
+    done
+
+    # Summary
+    echo ""
+    if [[ $issues -eq 0 ]]; then
+        success "System healthy — no issues found"
+    else
+        warn "$issues issue(s) found"
+    fi
+}
+
+cmd_sync() {
+    local direction="${1:-push}"
+
+    header "ricectl sync"
+
+    cd "$RICECTL_ROOT"
+
+    case "$direction" in
+        push)
+            # Collect current dotfiles from system
+            info "Collecting dotfiles from system..."
+
+            # Common configs
+            for mod_dir in "$RICECTL_ROOT/configs/common"/*/; do
+                local mod_name
+                mod_name="$(basename "$mod_dir")"
+                if [[ -d "$HOME/.config/$mod_name" ]]; then
+                    rsync -ah "$HOME/.config/$mod_name/" "$mod_dir/"
+                fi
+            done
+
+            # Zsh files
+            [[ -f "$HOME/.zshrc" ]] && cp "$HOME/.zshrc" "$RICECTL_ROOT/.zshrc"
+            [[ -f "$HOME/.p10k.zsh" ]] && cp "$HOME/.p10k.zsh" "$RICECTL_ROOT/.p10k.zsh"
+
+            # Git commit and push
+            if [[ -n "$(git status --porcelain)" ]]; then
+                git add -A
+                git commit -m "sync: $(date '+%Y-%m-%d %H:%M')"
+                info "Changes committed"
+
+                if confirm "Push to remote?"; then
+                    git push
+                    success "Pushed to remote"
+                fi
+            else
+                success "Already up to date"
+            fi
+            ;;
+
+        pull)
+            info "Pulling latest from remote..."
+            git pull --rebase
+            success "Repository updated"
+
+            if confirm "Apply configs to system?"; then
+                # Detect variant
+                local variant
+                variant="$(detect_chassis)"
+
+                # Deploy common configs
+                for mod_dir in "$RICECTL_ROOT/configs/common"/*/; do
+                    local mod_name
+                    mod_name="$(basename "$mod_dir")"
+                    deploy_configs "$mod_dir" "$HOME/.config/$mod_name"
+                done
+
+                # Deploy variant configs
+                if [[ -d "$RICECTL_ROOT/configs/variants/$variant" ]]; then
+                    for mod_dir in "$RICECTL_ROOT/configs/variants/$variant"/*/; do
+                        local mod_name
+                        mod_name="$(basename "$mod_dir")"
+                        deploy_configs "$mod_dir" "$HOME/.config/$mod_name"
+                    done
+                fi
+
+                deploy_file "$RICECTL_ROOT/.zshrc" "$HOME/.zshrc"
+                deploy_file "$RICECTL_ROOT/.p10k.zsh" "$HOME/.p10k.zsh"
+
+                success "Configs applied"
+            fi
+            ;;
+
+        *)
+            error "Usage: ricectl sync [push|pull]"
+            exit 1
+            ;;
+    esac
+}
+
+cmd_module() {
+    local subcmd="${1:-list}"
+    shift 2>/dev/null || true
+
+    case "$subcmd" in
+        list)
+            header "Available Modules"
+            for module_dir in "$RICECTL_ROOT/modules"/*/; do
+                local mod_name
+                mod_name="$(basename "$module_dir")"
+                local mod_yaml="$module_dir/module.yaml"
+                [[ -f "$mod_yaml" ]] || continue
+
+                local desc=""
+                desc="$(grep '^description:' "$mod_yaml" | head -1 | sed 's/description: *//')"
+                local status="  "
+
+                # Check if deployed
+                if [[ -d "$HOME/.config/$mod_name" ]] || [[ "$mod_name" == "zsh" && -f "$HOME/.zshrc" ]] || [[ "$mod_name" == "docker" && -f "/usr/bin/docker" ]]; then
+                    status="${C_GREEN}●${C_RESET}"
+                else
+                    status="${C_RED}○${C_RESET}"
+                fi
+
+                echo -e "  $status $mod_name — $desc"
+            done
+            ;;
+
+        install)
+            local mod_name="$1"
+            local variant="${2:-}"
+            [[ -z "$variant" ]] && variant="$(detect_chassis)"
+            require_not_root
+            require_internet
+            sudo_keepalive
+            deploy_module "$mod_name" "$variant"
+            ;;
+
+        info)
+            local mod_name="$1"
+            local mod_yaml="$RICECTL_ROOT/modules/$mod_name/module.yaml"
+            if [[ ! -f "$mod_yaml" ]]; then
+                error "Module not found: $mod_name"
+                exit 1
+            fi
+            cat "$mod_yaml"
+            ;;
+
+        *)
+            error "Usage: ricectl module [list|install|info] [name]"
+            exit 1
+            ;;
+    esac
+}
+
+cmd_profile() {
+    local subcmd="${1:-list}"
+    shift 2>/dev/null || true
+
+    case "$subcmd" in
+        list)
+            header "Available Profiles"
+            for pfile in "$RICECTL_ROOT/profiles/"*.yaml; do
+                local pname
+                pname="$(basename "$pfile" .yaml)"
+                local pdesc=""
+                pdesc="$(grep '^description:' "$pfile" | head -1 | sed 's/description: *//')"
+                local mod_count
+                mod_count="$(grep -c '^ *-' "$pfile" || echo 0)"
+                echo "  $pname — $pdesc ($mod_count items)"
+            done
+            ;;
+
+        show)
+            local pname="$1"
+            local pfile="$RICECTL_ROOT/profiles/$pname.yaml"
+            if [[ ! -f "$pfile" ]]; then
+                error "Profile not found: $pname"
+                exit 1
+            fi
+            cat "$pfile"
+            ;;
+
+        *)
+            error "Usage: ricectl profile [list|show] [name]"
+            exit 1
+            ;;
+    esac
+}
+
+cmd_secrets() {
+    local subcmd="${1:-status}"
+    local secrets_dir="$RICECTL_ROOT/secrets"
+
+    case "$subcmd" in
+        init)
+            if ! command -v gpg &>/dev/null; then
+                error "gpg not found. Install gnupg first."
+                exit 1
+            fi
+
+            mkdir -p "$secrets_dir"
+
+            if [[ ! -f "$secrets_dir/.gpg-id" ]]; then
+                echo ""
+                info "Available GPG keys:"
+                gpg --list-secret-keys --keyid-format LONG 2>/dev/null
+                echo ""
+                read -rp "Enter GPG key ID for encryption: " gpg_id
+                echo "$gpg_id" > "$secrets_dir/.gpg-id"
+                success "Secrets initialized with GPG key: $gpg_id"
+            else
+                info "Secrets already initialized"
+            fi
+            ;;
+
+        encrypt)
+            local file="$1"
+            if [[ ! -f "$file" ]]; then
+                error "File not found: $file"
+                exit 1
+            fi
+            local gpg_id
+            gpg_id="$(cat "$secrets_dir/.gpg-id" 2>/dev/null)"
+            if [[ -z "$gpg_id" ]]; then
+                error "Secrets not initialized. Run: ricectl secrets init"
+                exit 1
+            fi
+            gpg --encrypt --recipient "$gpg_id" --output "$file.gpg" "$file"
+            success "Encrypted: $file → $file.gpg"
+            warn "Don't forget to delete the plaintext file"
+            ;;
+
+        decrypt)
+            local file="$1"
+            if [[ ! -f "$file" ]]; then
+                error "File not found: $file"
+                exit 1
+            fi
+            local output="${file%.gpg}"
+            gpg --decrypt --output "$output" "$file"
+            success "Decrypted: $file → $output"
+            ;;
+
+        status)
+            header "Secrets Status"
+            if [[ -f "$secrets_dir/.gpg-id" ]]; then
+                success "GPG key: $(cat "$secrets_dir/.gpg-id")"
+            else
+                warn "Secrets not initialized"
+            fi
+            local count
+            count="$(find "$secrets_dir" -name '*.gpg' 2>/dev/null | wc -l)"
+            info "Encrypted files: $count"
+            ;;
+
+        *)
+            error "Usage: ricectl secrets [init|encrypt|decrypt|status] [file]"
+            exit 1
+            ;;
+    esac
+}
+
+cmd_update() {
+    header "ricectl update"
+    require_not_root
+    require_internet
+
+    info "Updating system packages..."
+    run "sudo pacman -Syu --noconfirm"
+
+    if command -v yay &>/dev/null; then
+        info "Updating AUR packages..."
+        run "yay -Syu --noconfirm"
+    fi
+
+    success "System updated"
+}
+
+cmd_version() {
+    echo "ricectl v$RICECTL_VERSION"
+}
+
+cmd_backup() {
+    local backup_dir="$RICECTL_ROOT/backups"
+    local timestamp
+    timestamp="$(date '+%Y%m%d_%H%M%S')"
+    local subcmd="${1:-create}"
+
+    case "$subcmd" in
+        create)
+            local backup_path="$backup_dir/$timestamp"
+            mkdir -p "$backup_path"
+
+            header "ricectl backup"
+            info "Creating backup: $timestamp"
+
+            # Backup all tracked configs
+            for mod_dir in "$RICECTL_ROOT/configs/common"/*/; do
+                local mod_name
+                mod_name="$(basename "$mod_dir")"
+                if [[ -d "$HOME/.config/$mod_name" ]]; then
+                    mkdir -p "$backup_path/$mod_name"
+                    rsync -ah "$HOME/.config/$mod_name/" "$backup_path/$mod_name/"
+                fi
+            done
+
+            # Backup variant configs
+            local variant
+            variant="$(detect_chassis)"
+            for mod_dir in "$RICECTL_ROOT/configs/variants/$variant"/*/; do
+                [[ -d "$mod_dir" ]] || continue
+                local mod_name
+                mod_name="$(basename "$mod_dir")"
+                if [[ -d "$HOME/.config/$mod_name" ]]; then
+                    mkdir -p "$backup_path/$mod_name"
+                    rsync -ah "$HOME/.config/$mod_name/" "$backup_path/$mod_name/"
+                fi
+            done
+
+            # Backup zsh
+            [[ -f "$HOME/.zshrc" ]] && cp "$HOME/.zshrc" "$backup_path/.zshrc"
+            [[ -f "$HOME/.p10k.zsh" ]] && cp "$HOME/.p10k.zsh" "$backup_path/.p10k.zsh"
+
+            # Save metadata
+            cat > "$backup_path/.metadata" <<META
+timestamp=$timestamp
+hostname=$(get_hostname)
+user=$USER
+version=$RICECTL_VERSION
+variant=$variant
+META
+
+            local size
+            size="$(du -sh "$backup_path" | cut -f1)"
+            success "Backup created: $backup_path ($size)"
+            ;;
+
+        list)
+            header "Available Backups"
+            if [[ ! -d "$backup_dir" ]] || [[ -z "$(ls -A "$backup_dir" 2>/dev/null)" ]]; then
+                warn "No backups found"
+                return 0
+            fi
+            for bdir in "$backup_dir"/*/; do
+                [[ -d "$bdir" ]] || continue
+                local bname
+                bname="$(basename "$bdir")"
+                local size
+                size="$(du -sh "$bdir" | cut -f1)"
+                local meta=""
+                if [[ -f "$bdir/.metadata" ]]; then
+                    meta=" (v$(grep '^version=' "$bdir/.metadata" | cut -d= -f2))"
+                fi
+                echo "  $bname — $size$meta"
+            done
+            ;;
+
+        restore)
+            local target="${2:-}"
+            if [[ -z "$target" ]]; then
+                # Pick latest or let user choose
+                if $HAS_GUM && [[ -d "$backup_dir" ]]; then
+                    local backups=()
+                    for bdir in "$backup_dir"/*/; do
+                        [[ -d "$bdir" ]] || continue
+                        backups+=("$(basename "$bdir")")
+                    done
+                    if [[ ${#backups[@]} -eq 0 ]]; then
+                        error "No backups found"
+                        exit 1
+                    fi
+                    target="$(printf '%s\n' "${backups[@]}" | tui_filter "Select backup to restore...")"
+                else
+                    target="$(ls -1 "$backup_dir" 2>/dev/null | tail -1)"
+                fi
+            fi
+
+            local restore_path="$backup_dir/$target"
+            if [[ ! -d "$restore_path" ]]; then
+                error "Backup not found: $target"
+                exit 1
+            fi
+
+            header "Restoring backup: $target"
+
+            if ! tui_confirm "This will overwrite current configs. Continue?"; then
+                warn "Aborted"
+                exit 0
+            fi
+
+            for config_dir in "$restore_path"/*/; do
+                [[ -d "$config_dir" ]] || continue
+                local mod_name
+                mod_name="$(basename "$config_dir")"
+                rsync -ah "$config_dir/" "$HOME/.config/$mod_name/"
+                success "Restored: $mod_name"
+            done
+
+            [[ -f "$restore_path/.zshrc" ]] && cp "$restore_path/.zshrc" "$HOME/.zshrc" && success "Restored: .zshrc"
+            [[ -f "$restore_path/.p10k.zsh" ]] && cp "$restore_path/.p10k.zsh" "$HOME/.p10k.zsh" && success "Restored: .p10k.zsh"
+
+            success "Backup $target restored"
+            ;;
+
+        clean)
+            if [[ ! -d "$backup_dir" ]]; then
+                info "No backups to clean"
+                return 0
+            fi
+            local count
+            count="$(find "$backup_dir" -mindepth 1 -maxdepth 1 -type d | wc -l)"
+            if tui_confirm "Delete all $count backup(s)?"; then
+                rm -rf "$backup_dir"
+                success "All backups deleted"
+            fi
+            ;;
+
+        *)
+            error "Usage: ricectl backup [create|list|restore|clean] [timestamp]"
+            exit 1
+            ;;
+    esac
+}
+
+cmd_uninstall() {
+    local mod_name="${1:-}"
+
+    if [[ -z "$mod_name" ]]; then
+        # Interactive module selection
+        if $HAS_GUM; then
+            mod_name="$(tui_select_modules | head -1)"
+        else
+            error "Usage: ricectl uninstall <module>"
+            exit 1
+        fi
+    fi
+
+    local mod_yaml="$RICECTL_ROOT/modules/$mod_name/module.yaml"
+    if [[ ! -f "$mod_yaml" ]]; then
+        error "Module not found: $mod_name"
+        exit 1
+    fi
+
+    header "Uninstall: $mod_name"
+
+    parse_yaml "$mod_yaml" "rm_mod"
+    local config_name="${rm_mod_config_dir:-$mod_name}"
+
+    # Show what will be removed
+    info "Config dir: ~/.config/$config_name"
+
+    local pacman_pkgs
+    pacman_pkgs=($(yaml_list "rm_mod" "pacman"))
+    if [[ ${#pacman_pkgs[@]} -gt 0 ]]; then
+        info "Packages: ${pacman_pkgs[*]}"
+    fi
+
+    local services
+    services=($(yaml_list "rm_mod" "services"))
+    if [[ ${#services[@]} -gt 0 ]]; then
+        info "Services: ${services[*]}"
+    fi
+
+    echo ""
+    if ! tui_confirm "Remove module '$mod_name'?"; then
+        warn "Aborted"
+        exit 0
+    fi
+
+    # Disable services first
+    if [[ ${#services[@]} -gt 0 ]]; then
+        for service in "${services[@]}"; do
+            [[ -z "$service" ]] && continue
+            if systemctl is-enabled "$service" &>/dev/null; then
+                info "Disabling service: $service"
+                run "sudo systemctl disable $service"
+            fi
+        done
+    fi
+
+    # Remove config directory
+    if [[ -d "$HOME/.config/$config_name" ]]; then
+        info "Removing config: ~/.config/$config_name"
+        rm -rf "$HOME/.config/$config_name"
+        success "Config removed"
+    fi
+
+    # Optionally remove packages
+    if [[ ${#pacman_pkgs[@]} -gt 0 ]]; then
+        if tui_confirm "Also remove packages? (${pacman_pkgs[*]})"; then
+            run "sudo pacman -Rns --noconfirm ${pacman_pkgs[*]}"
+            success "Packages removed"
+        else
+            info "Packages kept"
+        fi
+    fi
+
+    success "Module '$mod_name' uninstalled"
+}
+
+cmd_help() {
+    cat <<EOF
+ricectl — Dotfiles as a Platform
+
+Usage: ricectl <command> [options]
+
+Commands:
+  install    Full system provisioning from a profile
+             --profile=NAME  --variant=pc|laptop  --dry-run
+
+  uninstall  Remove a module (config + packages + services)
+             ricectl uninstall <module>
+
+  doctor     Health check: verify packages, configs, services
+
+  sync       Bidirectional dotfiles sync
+             push   Collect from system → commit → push
+             pull   Pull from remote → apply to system
+
+  backup     Snapshot management
+             create         Create a backup of current configs
+             list           List available backups
+             restore [ID]   Restore a backup
+             clean          Delete all backups
+
+  module     Module management
+             list           Show all modules
+             install NAME   Install a single module
+             info NAME      Show module details
+
+  profile    Profile management
+             list           Show all profiles
+             show NAME      Show profile details
+
+  secrets    GPG-based secrets management
+             init           Initialize with GPG key
+             encrypt FILE   Encrypt a file
+             decrypt FILE   Decrypt a file
+             status         Show secrets status
+
+  update     Update system + AUR packages
+
+  version    Show version
+  help       Show this help
+
+Examples:
+  ricectl install --profile=full --variant=pc
+  ricectl install --profile=minimal --dry-run
+  ricectl uninstall docker
+  ricectl backup create
+  ricectl backup restore 20260412_184500
+  ricectl doctor
+  ricectl sync push
+  ricectl module install docker
+  ricectl secrets init
+
+EOF
+}
+
+# ================================================================
+# MAIN DISPATCH
+# ================================================================
+
+main() {
+    local cmd="${1:-help}"
+    shift 2>/dev/null || true
+
+    case "$cmd" in
+        install)    cmd_install "$@" ;;
+        uninstall)  cmd_uninstall "$@" ;;
+        doctor)     cmd_doctor "$@" ;;
+        sync)       cmd_sync "$@" ;;
+        backup)     cmd_backup "$@" ;;
+        module)     cmd_module "$@" ;;
+        profile)    cmd_profile "$@" ;;
+        secrets)    cmd_secrets "$@" ;;
+        update)     cmd_update "$@" ;;
+        version)    cmd_version ;;
+        help|--help|-h) cmd_help ;;
+        *)
+            error "Unknown command: $cmd"
+            cmd_help
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"

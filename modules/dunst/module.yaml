@@ -1,0 +1,9 @@
+name: dunst
+description: Dunst notification daemon
+category: notifications
+
+pacman:
+  - dunst
+  - libnotify
+
+depends: []

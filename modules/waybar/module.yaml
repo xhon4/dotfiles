@@ -1,0 +1,9 @@
+name: waybar
+description: Waybar status bar (variant-aware)
+category: bar
+
+# No packages — comes as hyprland dependency or installed separately
+pacman: []
+
+depends:
+  - hyprland

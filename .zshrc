@@ -1,6 +1,7 @@
 fastfetch
 
 export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 
 alias clear='clear && fastfetch'
 

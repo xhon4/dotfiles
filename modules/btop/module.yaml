@@ -1,0 +1,8 @@
+name: btop
+description: Btop++ system monitor
+category: monitoring
+
+pacman:
+  - btop
+
+depends: []

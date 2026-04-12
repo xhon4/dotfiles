@@ -1,0 +1,9 @@
+name: kvantum
+description: Kvantum Qt theme engine
+category: theming
+config_dir: Kvantum
+
+pacman:
+  - kvantum
+
+depends: []

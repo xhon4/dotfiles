@@ -1,4 +1,5 @@
 install.log
+ricectl.log
 .cache/
 *.log
 
@@ -7,4 +8,19 @@ install.log
 
 # temp
 /tmp/
+
+# backups
+backups/
+
+# secrets (plaintext)
+secrets/*
+!secrets/.gitkeep
+!secrets/.gpg-id
+*.gpg
+
+# backup files
+*.bak
+
+# old installer backup
+install.sh.old
 

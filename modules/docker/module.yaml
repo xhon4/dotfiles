@@ -1,0 +1,12 @@
+name: docker
+description: Docker container runtime
+category: dev
+
+pacman:
+  - docker
+  - docker-compose
+
+services:
+  - docker
+
+depends: []
