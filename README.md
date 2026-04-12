@@ -1,13 +1,14 @@
 <div align="center">
+<pre>
+░█▀█░▀▄▀░█░█
+░█░█░█░█░█▀█
+░▀▀▀░▀░▀░▀░▀
+</pre>
 
-# ░█▀█░▀▄▀░█░█
-# ░█░█░█░█░█▀█
-# ░▀▀▀░▀░▀░▀░▀
 
 **[ Arch Linux . Hyprland . Wayland ]**
 
-*dotfiles as a platform — one command, full rice*
-
+errmm well, I'm generally not a big fan of modern designs and rounded corners, so I made this one kinda brutalist and sober :p
 ---
 
 [![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?style=for-the-badge&logo=archlinux&logoColor=white)](https://archlinux.org)
