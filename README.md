@@ -24,9 +24,13 @@ errmm well, I'm generally not a big fan of modern designs and rounded corners, s
 
 <div align="center">
 
-> Screenshots coming soon — run `ricectl install --profile=full` and take your own.
+<img width="1920" height="1080" alt="2026-03-31_20-09-37" src="https://github.com/user-attachments/assets/5955c685-8814-4ad4-852e-f1c918de23b1" />
 
-<img src="assets/wallpaper.jpg" alt="Wallpaper" width="720"/>
+<img width="1920" height="1080" alt="2026-03-31_20-10-55" src="https://github.com/user-attachments/assets/20be105d-ead4-406c-994d-5dc3bd0fb040" />
+
+<img width="1920" height="1080" alt="2026-03-31_20-11-14" src="https://github.com/user-attachments/assets/72753aba-cdd5-4226-86bc-14f29c81d88f" />
+
+<img width="1919" height="1080" alt="2026-03-31_20-11-31" src="https://github.com/user-attachments/assets/6bf1b471-b4ac-4174-a73a-e3c14b3c7c1d" />
 
 </div>
 
