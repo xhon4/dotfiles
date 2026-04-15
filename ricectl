@@ -96,40 +96,40 @@ cmd_install() {
     # Install base packages
     header "Base Packages"
     local base_pkgs
-    base_pkgs=($(yaml_list "prof" "base_packages"))
+    read -ra base_pkgs <<< "$(yaml_list "prof" "base_packages")"
     if [[ ${#base_pkgs[@]} -gt 0 ]]; then
         install_pacman "${base_pkgs[@]}"
     fi
 
     # Install fonts
     local fonts
-    fonts=($(yaml_list "prof" "fonts"))
+    read -ra fonts <<< "$(yaml_list "prof" "fonts")"
     if [[ ${#fonts[@]} -gt 0 ]]; then
         install_pacman "${fonts[@]}"
     fi
 
     local aur_fonts
-    aur_fonts=($(yaml_list "prof" "aur_fonts"))
+    read -ra aur_fonts <<< "$(yaml_list "prof" "aur_fonts")"
     if [[ ${#aur_fonts[@]} -gt 0 ]]; then
         install_aur "${aur_fonts[@]}"
     fi
 
     # Install networking
     local net_pkgs
-    net_pkgs=($(yaml_list "prof" "networking"))
+    read -ra net_pkgs <<< "$(yaml_list "prof" "networking")"
     if [[ ${#net_pkgs[@]} -gt 0 ]]; then
         install_pacman "${net_pkgs[@]}"
     fi
 
     local net_services
-    net_services=($(yaml_list "prof" "networking_services"))
+    read -ra net_services <<< "$(yaml_list "prof" "networking_services")"
     if [[ ${#net_services[@]} -gt 0 ]]; then
         enable_services "${net_services[@]}"
     fi
 
     # Extra AUR packages
     local extras_aur
-    extras_aur=($(yaml_list "prof" "extras_aur"))
+    read -ra extras_aur <<< "$(yaml_list "prof" "extras_aur")"
     if [[ ${#extras_aur[@]} -gt 0 ]]; then
         install_aur "${extras_aur[@]}"
     fi
@@ -137,7 +137,7 @@ cmd_install() {
     # Deploy modules
     header "Modules"
     local modules
-    modules=($(yaml_list "prof" "modules"))
+    read -ra modules <<< "$(yaml_list "prof" "modules")"
     for mod in "${modules[@]}"; do
         deploy_module "$mod" "$variant"
     done
@@ -219,7 +219,7 @@ cmd_doctor() {
             # Check packages
             local all_ok=true
             local pacman_pkgs
-            pacman_pkgs=($(yaml_list "doc" "pacman"))
+            read -ra pacman_pkgs <<< "$(yaml_list "doc" "pacman")"
             for pkg in "${pacman_pkgs[@]}"; do
                 [[ -z "$pkg" ]] && continue
                 if ! pkg_installed "$pkg"; then
@@ -609,7 +609,7 @@ META
                     fi
                     target="$(printf '%s\n' "${backups[@]}" | tui_filter "Select backup to restore...")"
                 else
-                    target="$(ls -1 "$backup_dir" 2>/dev/null | tail -1)"
+                    target="$(find "$backup_dir" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null | sort | tail -1)"
                 fi
             fi
 
@@ -688,13 +688,13 @@ cmd_uninstall() {
     info "Config dir: ~/.config/$config_name"
 
     local pacman_pkgs
-    pacman_pkgs=($(yaml_list "rm_mod" "pacman"))
+    read -ra pacman_pkgs <<< "$(yaml_list "rm_mod" "pacman")"
     if [[ ${#pacman_pkgs[@]} -gt 0 ]]; then
         info "Packages: ${pacman_pkgs[*]}"
     fi
 
     local services
-    services=($(yaml_list "rm_mod" "services"))
+    read -ra services <<< "$(yaml_list "rm_mod" "services")"
     if [[ ${#services[@]} -gt 0 ]]; then
         info "Services: ${services[*]}"
     fi

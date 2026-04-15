@@ -16,6 +16,7 @@ readonly C_BOLD='\e[1m'
 
 # Globals
 RICECTL_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck disable=SC2034
 RICECTL_VERSION="$(cat "$RICECTL_ROOT/VERSION" 2>/dev/null || echo "unknown")"
 RICECTL_LOG="$RICECTL_ROOT/ricectl.log"
 DRY_RUN="${DRY_RUN:-false}"
@@ -40,6 +41,7 @@ run() {
     if [[ "$DRY_RUN" == "true" ]]; then
         echo -e "${C_YELLOW}[DRY]${C_RESET} $*"
     else
+        # shellcheck disable=SC2294
         eval "$@"
     fi
 }
@@ -86,7 +88,6 @@ sudo_keepalive() {
 parse_yaml() {
     local file="$1"
     local prefix="${2:-yaml}"
-    local s='[[:space:]]*'
     local w='[a-zA-Z0-9_-]*'
 
     if [[ ! -f "$file" ]]; then

@@ -4,6 +4,7 @@
 #  Falls back to plain prompts if gum is not installed
 # ================================================================
 
+# shellcheck source=lib/core.sh
 source "$(dirname "${BASH_SOURCE[0]}")/core.sh" 2>/dev/null || true
 
 HAS_GUM=false

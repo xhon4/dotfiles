@@ -3,6 +3,7 @@
 #  ricectl config deployment
 # ================================================================
 
+# shellcheck source=lib/core.sh
 source "$(dirname "${BASH_SOURCE[0]}")/core.sh" 2>/dev/null || true
 
 # Deploy configs from source to destination using rsync (idempotent)
@@ -92,7 +93,7 @@ deploy_module() {
 
     # Enable services
     local services
-    services=($(yaml_list "$prefix" "services"))
+    read -ra services <<< "$(yaml_list "$prefix" "services")"
     if [[ ${#services[@]} -gt 0 ]]; then
         enable_services "${services[@]}"
     fi
@@ -100,6 +101,7 @@ deploy_module() {
     # Run post-install hook
     if [[ -f "$module_dir/post-install.sh" ]]; then
         info "Running post-install hook for $module_name..."
+        # shellcheck disable=SC1091
         source "$module_dir/post-install.sh"
     fi
 

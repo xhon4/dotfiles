@@ -3,6 +3,7 @@
 #  ricectl package management (pacman + yay)
 # ================================================================
 
+# shellcheck source=lib/core.sh
 source "$(dirname "${BASH_SOURCE[0]}")/core.sh" 2>/dev/null || true
 
 # Check if a package is installed
@@ -68,14 +69,14 @@ install_module_packages() {
 
     # Pacman packages
     local pacman_pkgs
-    pacman_pkgs=($(yaml_list "$prefix" "pacman"))
+    read -ra pacman_pkgs <<< "$(yaml_list "$prefix" "pacman")"
     if [[ ${#pacman_pkgs[@]} -gt 0 ]]; then
         install_pacman "${pacman_pkgs[@]}"
     fi
 
     # AUR packages
     local aur_pkgs
-    aur_pkgs=($(yaml_list "$prefix" "aur"))
+    read -ra aur_pkgs <<< "$(yaml_list "$prefix" "aur")"
     if [[ ${#aur_pkgs[@]} -gt 0 ]]; then
         install_aur "${aur_pkgs[@]}"
     fi
