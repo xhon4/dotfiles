@@ -61,11 +61,7 @@ errmm well, I'm generally not a big fan of modern designs and rounded corners, s
 
 ## ⚡ Installation
 
-**One-liner bootstrap** (clones the repo, installs everything):
-
-```bash
-curl -sL https://raw.githubusercontent.com/xhon4/dotfiles/main/install.sh | bash
-```
+**Install** (clone, inspect, then run):
 
 **Manual install:**
 
