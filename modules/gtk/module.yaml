@@ -1,6 +1,7 @@
 name: gtk
 description: GTK dark theme configuration
 category: theming
+config_dir: gtk-3.0
 
 pacman:
   - gtk3
