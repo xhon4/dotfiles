@@ -215,29 +215,27 @@
   typeset -g POWERLEVEL9K_PROMPT_CHAR_LEFT_{LEFT,RIGHT}_WHITESPACE=
 
   ##################################[ dir: current directory ]##################################
-  # --- DIRECTORY (El bloque de la carpeta) ---
-  # Usamos tu 'Cyan/Gold' (#B0B301) que es el color 6
+  # --- DIRECTORY ---
   typeset -g POWERLEVEL9K_DIR_BACKGROUND=6
-  typeset -g POWERLEVEL9K_DIR_FOREGROUND=0  # Texto negro para que resalte
+  typeset -g POWERLEVEL9K_DIR_FOREGROUND=0
 
-  # --- GIT (El bloque de repositorio) ---
-  # Verde oliva (#C4C700) cuando está limpio (Color 2)
+  # --- GIT ---
   typeset -g POWERLEVEL9K_VCS_CLEAN_BACKGROUND=2
   typeset -g POWERLEVEL9K_VCS_CLEAN_FOREGROUND=0
 
-  # Rojo vino (#961911) cuando hay cambios (Color 1)
   typeset -g POWERLEVEL9K_VCS_MODIFIED_BACKGROUND=1
-  typeset -g POWERLEVEL9K_VCS_MODIFIED_FOREGROUND=15 # Blanco brillante
+  typeset -g POWERLEVEL9K_VCS_MODIFIED_FOREGROUND=15
 
-  # --- STATUS (Si el comando falló) ---
+  # --- STATUS ---
   typeset -g POWERLEVEL9K_STATUS_ERROR_BACKGROUND=1
   typeset -g POWERLEVEL9K_STATUS_ERROR_FOREGROUND=15
 
   # --- CONTEXT (user@host) ---
-  # Usamos tu Gris/Azul (#454343) que es el color 8 o 4
   typeset -g POWERLEVEL9K_CONTEXT_ROOT_BACKGROUND=1
   typeset -g POWERLEVEL9K_CONTEXT_DEFAULT_BACKGROUND=8
-  typeset -g POWERLEVEL9K_CONTEXT_DEFAULT_FOREGROUND=15local anchor_files=(
+  typeset -g POWERLEVEL9K_CONTEXT_DEFAULT_FOREGROUND=15
+
+  local anchor_files=(
     .bzr
     .citc
     .git

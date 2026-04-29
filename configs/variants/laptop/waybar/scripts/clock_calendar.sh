@@ -76,7 +76,7 @@ divider = f'\n<span foreground="{DIM}">{div_line}</span>\n'
 if events_text:
     gcal_section = divider + "\n".join(events_text)
 else:
-    gcal_section = divider + f'<span foreground="{DIM}" size="smaller">without events this month...</span>'
+    gcal_section = divider + f'<span foreground="{DIM}" size="smaller">No events this month</span>'
 
 tooltip = f"<tt><span size='10pt'>{calendar_markup}</span>{gcal_section}</tt>"
 time_text = datetime.datetime.now().strftime("%I:%M %p").lstrip("0")

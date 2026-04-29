@@ -1,6 +1,5 @@
 name: minimal
 description: Minimal setup — shell + terminal + basic tools
-variant: ""
 
 base-packages:
   - git

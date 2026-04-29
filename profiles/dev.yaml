@@ -1,6 +1,5 @@
 name: dev
 description: Development environment — shell + tools + docker
-variant: ""
 
 base-packages:
   - git
