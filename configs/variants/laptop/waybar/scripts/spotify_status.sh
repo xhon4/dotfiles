@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # oxh-hyprland-dotfiles by occhi
 MAXLEN=40
 
