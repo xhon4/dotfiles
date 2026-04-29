@@ -44,15 +44,8 @@ alias ..='cd ..'
 alias grep='grep --color=auto'
 alias update='sudo pacman -Syu'
 
-# --- Paths & Helpers (Safe Loading) ---
+# --- Paths ---
 export PATH="$HOME/.local/bin:$PATH"
-
-setopt localoptions nullglob
-if [[ -d "$HOME/.config/alacritty/zsh/helpers" ]]; then
-    for dir in "$HOME/.config/alacritty/zsh/helpers"/*/; do
-        export PATH="$dir:$PATH"
-    done
-fi
 
 # --- GPU / Mesa Optimizations ---
 export RADV_PERFTEST=aco,ngg

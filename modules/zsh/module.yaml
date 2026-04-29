@@ -6,10 +6,4 @@ pacman:
   - zsh
   - zsh-completions
 
-configs:
-  - source: .zshrc
-    dest: ~/.zshrc
-  - source: .p10k.zsh
-    dest: ~/.p10k.zsh
-
 depends: []
