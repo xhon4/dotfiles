@@ -21,3 +21,6 @@ fonts:
   - noto-fonts
   - noto-fonts-emoji
   - ttf-jetbrains-mono-nerd
+
+aur-fonts:
+  - ttf-terminus-font

@@ -9,6 +9,8 @@ base-packages:
   - unzip
   - rsync
   - jq
+  - python
+  - python-dateutil
 
 modules:
   - zsh
@@ -36,6 +38,20 @@ fonts:
 
 aur-fonts:
   - ttf-terminus-font
+  - ttf-iosevka-nerd
+  - ttf-inconsolata-nerd
+  - ttf-material-design-icons-desktop
+
+networking:
+  - networkmanager
+  - network-manager-applet
+  - bluez
+  - bluez-utils
+  - blueman
+
+networking-services:
+  - NetworkManager
+  - bluetooth
 
 extras-aur:
   - gcalcli
