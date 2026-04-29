@@ -31,7 +31,6 @@ modules:
   - yazi
   - sddm
   - pipewire
-  - gpu-amd
   - gtk
   - kitty
   - kvantum

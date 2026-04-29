@@ -216,7 +216,7 @@ cmd_doctor() {
         local config_name="${doc_config_dir:-$mod_name}"
 
         # Check if config exists
-        if [[ -d "$HOME/.config/$config_name" ]] || [[ "$mod_name" == "zsh" ]] || [[ "$mod_name" == "gtk" ]] || [[ "$mod_name" == "gpu-amd" ]] || [[ "$mod_name" == "docker" ]]; then
+        if [[ -d "$HOME/.config/$config_name" ]] || [[ "$mod_name" == "zsh" ]] || [[ "$mod_name" == "gtk" ]] || [[ "$mod_name" == "docker" ]]; then
             # Check packages
             local all_ok=true
             local pacman_pkgs
@@ -357,7 +357,6 @@ cmd_module() {
                 if [[ -d "$HOME/.config/$config_name" ]] || \
                    [[ "$mod_name" == "zsh"      && -f "$HOME/.zshrc" ]] || \
                    [[ "$mod_name" == "docker"   && -f "/usr/bin/docker" ]] || \
-                   [[ "$mod_name" == "gpu-amd" ]] || \
                    [[ "$mod_name" == "pipewire" && -f "/usr/bin/pipewire" ]] || \
                    [[ "$mod_name" == "sddm"     && -d "/usr/share/sddm/themes/oxh-sddm" ]] || \
                    [[ "$mod_name" == "qt6ct"    && -f "/usr/bin/qt6ct" ]]; then

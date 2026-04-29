@@ -47,11 +47,13 @@ alias update='sudo pacman -Syu'
 # --- Paths ---
 export PATH="$HOME/.local/bin:$PATH"
 
-# --- GPU / Mesa Optimizations ---
-export RADV_PERFTEST=aco,ngg
-export AMD_VULKAN_ICD=RADV
-export mesa_glthread=true
-export MESA_GL_VERSION_OVERRIDE=4.6
+# --- GPU / Mesa Optimizations (AMD only) ---
+if [[ -d /sys/module/amdgpu ]]; then
+    export RADV_PERFTEST=aco,ngg
+    export AMD_VULKAN_ICD=RADV
+    export mesa_glthread=true
+    export MESA_GL_VERSION_OVERRIDE=4.6
+fi
 
 # --- Theme Configuration ---
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

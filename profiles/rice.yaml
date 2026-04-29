@@ -22,7 +22,6 @@ modules:
   - cava
   - fastfetch
   - pipewire
-  - gpu-amd
   - gtk
   - kitty
   - kvantum
