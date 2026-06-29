@@ -29,8 +29,6 @@
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/9187f297-884c-41dd-b2b9-0ff9b33d2f0c" />
 
-<img width="605" height="584" alt="image" src="https://github.com/user-attachments/assets/adee7398-b56f-4d25-a4d4-5fa40e229fcc" />
-
 <img width="457" height="308" alt="image" src="https://github.com/user-attachments/assets/ce6ea9d0-09bb-473c-a137-e54cca8386a0" />
 
 
