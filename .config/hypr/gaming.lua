@@ -1,11 +1,11 @@
 -- r4chi-dotfiles · by occhi
 
 ------------------------------------------------------------
--- MONITOR (VRR)
+-- MONITOR
 ------------------------------------------------------------
 hl.monitor({
-    output   = "HDMI-A-2",
-    mode     = "1920x1080@75",
+    output   = "",
+    mode     = "preferred",
     position = "auto",
     scale    = 1,
 })
@@ -27,7 +27,7 @@ hl.env("RADV_PERFTEST", "gpl,sam")
 hl.env("AMD_VULKAN_ICD", "RADV")
 
 ------------------------------------------------------------
--- OPCIONES (tearing / vrr / cursor)
+-- OPTIONS
 ------------------------------------------------------------
 hl.config({
     general = {

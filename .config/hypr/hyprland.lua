@@ -4,8 +4,8 @@
 -- MONITOR
 ------------------------------------------------------------
 hl.monitor({
-    output   = "HDMI-A-2",
-    mode     = "1920x1080@75",
+    output   = "",
+    mode     = "preferred",
     position = "auto",
     scale    = 1,
 })
@@ -25,7 +25,7 @@ hl.on("hyprland.start", function()
 end)
 
 ------------------------------------------------------------
--- OPCIONES
+-- OPTIONS
 ------------------------------------------------------------
 hl.config({
     input = {
@@ -72,7 +72,7 @@ hl.config({
 })
 
 ------------------------------------------------------------
--- ANIMACIONES
+-- ANIMATIONS
 ------------------------------------------------------------
 hl.curve("snappy", { type = "bezier", points = { { 0.25, 0.1 }, { 0.25, 1.0 } } })
 
@@ -109,7 +109,7 @@ hl.bind(mod .. " + BackSpace", hl.dsp.exec_cmd("~/.config/hypr/scripts/power_men
 hl.bind(mod .. " + period",    hl.dsp.exec_cmd("~/.config/rofi/scripts/emote-picker.sh"))
 hl.bind(mod .. " + A",         hl.dsp.exec_cmd("rofi -show drun"))
 
--- Ventanas
+-- Windows
 hl.bind(mod .. " + Q", hl.dsp.window.close())
 hl.bind(mod .. " + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 hl.bind(mod .. " + V", function()
@@ -117,7 +117,7 @@ hl.bind(mod .. " + V", function()
     hl.dispatch(hl.dsp.window.resize({ x = 800, y = 600 }))
 end)
 
--- Foco
+-- Focus
 hl.bind(mod .. " + H", hl.dsp.focus({ direction = "left" }))
 hl.bind(mod .. " + J", hl.dsp.focus({ direction = "down" }))
 hl.bind(mod .. " + K", hl.dsp.focus({ direction = "up" }))
@@ -138,7 +138,7 @@ for i = 1, 9 do
     hl.bind(mod .. " + SHIFT + " .. i, hl.dsp.window.move({ workspace = i }))
 end
 
--- Sistema
+-- System
 hl.bind(mod .. " + SHIFT + R", hl.dsp.exec_cmd("hyprctl reload"))
 hl.bind(mod .. " + SHIFT + S", hl.dsp.exec_cmd("grim -g \"$(slurp)\" - | tee ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png | wl-copy"))
 hl.bind(mod .. " + D",         hl.dsp.exec_cmd("~/.config/hypr/scripts/toggle_desktop.sh"))

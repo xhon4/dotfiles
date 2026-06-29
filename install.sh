@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # ==================================================================
-#  PALETA
+#  PALETTE
 # ==================================================================
 readonly RESET=$'\e[0m'
 readonly BOLD=$'\e[1m'
@@ -16,7 +16,7 @@ readonly DIM=$'\e[38;2;142;158;161m'
 readonly GREEN=$'\e[38;2;170;200;150m'
 
 # ==================================================================
-#  ARTE + UI
+#  ART + UI
 # ==================================================================
 banner() {
     printf '%s' "$ACCENT"
@@ -84,58 +84,58 @@ spin() {
 }
 
 # ==================================================================
-#  SANIDAD
+#  SANITY
 # ==================================================================
 if [[ $EUID -eq 0 ]]; then
-    err "No ejecutes este script como root. Corrélo como tu usuario; pedira sudo cuando haga falta."
+    err "Do not run this script as root. Run it as your user; it will ask for sudo when needed."
     exit 1
 fi
 
 DOTFILES_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 readonly DOTFILES_DIR
 readonly PKG_FILE="$DOTFILES_DIR/packages.txt"
-[[ -f "$PKG_FILE" ]] || { err "No se encontro packages.txt junto a install.sh."; exit 1; }
+[[ -f "$PKG_FILE" ]] || { err "packages.txt not found next to install.sh."; exit 1; }
 
 clear 2>/dev/null || true
 banner
 printf '\n %sRepo:%s    %s\n' "$MUTED" "$RESET" "$DOTFILES_DIR"
-printf ' %sDestino:%s ~/.config · ~/.zshrc · /usr/share · /etc (sudo)\n' "$MUTED" "$RESET"
-warn "Esto instalara paquetes y SOBREESCRIBIRA tus configs de Hyprland/Waybar/etc."
-pause "ENTER para comenzar (Ctrl-C para abortar)..."
+printf ' %sTarget:%s ~/.config · ~/.zshrc · /usr/share · /etc (sudo)\n' "$MUTED" "$RESET"
+warn "This will install packages and OVERWRITE your Hyprland/Waybar/etc. configs."
+pause "ENTER to start (Ctrl-C to abort)..."
 
-info "Solicitando sudo (para pacman y configs globales)..."
+info "Requesting sudo (for pacman and global configs)..."
 sudo -v
 while true; do sudo -n true; sleep 60; kill -0 "$$" 2>/dev/null || exit; done &
 readonly SUDO_PID=$!
 trap 'kill "$SUDO_PID" 2>/dev/null || true' EXIT
 
 # ==================================================================
-#  1 · ACTUALIZAR EL SISTEMA
+#  1 · UPDATE THE SYSTEM
 # ==================================================================
-step 1 "Actualizando el sistema (pacman -Syu)"
+step 1 "Updating the system (pacman -Syu)"
 sudo pacman -Syu --noconfirm
-ok "Sistema al dia."
+ok "System up to date."
 
 # ==================================================================
 #  2 · YAY (AUR helper)
 # ==================================================================
 step 2 "AUR helper (yay)"
 if command -v yay &>/dev/null; then
-    ok "yay ya esta instalado."
+    ok "yay already installed."
 else
-    info "Compilando yay desde AUR..."
+    info "Building yay from AUR..."
     sudo pacman -S --needed --noconfirm git base-devel
     tmp="$(mktemp -d)"
     git clone --depth=1 https://aur.archlinux.org/yay.git "$tmp/yay"
     ( cd "$tmp/yay" && makepkg -si --noconfirm )
     rm -rf "$tmp"
-    ok "yay instalado."
+    ok "yay installed."
 fi
 
 # ==================================================================
-#  3 · VERIFICAR E INSTALAR PAQUETES + FUENTES
+#  3 · VERIFY & INSTALL PACKAGES + FONTS
 # ==================================================================
-step 3 "Paquetes y fuentes (verificar lo que falta e instalar)"
+step 3 "Packages and fonts (check missing and install)"
 
 official_pkgs=(); aur_pkgs=(); target="official"
 while IFS= read -r raw; do
@@ -155,18 +155,18 @@ for p in "${aur_pkgs[@]}"; do
     else printf '   %s+%s %s %s(yay/AUR)%s\n' "$ACCENT2" "$RESET" "$p" "$DIM" "$RESET"; pending_aur+=("$p"); fi
 done
 
-info "Faltan: ${#pending_official[@]} oficiales, ${#pending_aur[@]} de AUR."
+info "Missing: ${#pending_official[@]} official, ${#pending_aur[@]} from AUR."
 if (( ${#pending_official[@]} + ${#pending_aur[@]} > 0 )); then
-    pause "ENTER para instalar lo que falta..."
+    pause "ENTER to install missing packages..."
     (( ${#pending_official[@]} > 0 )) && sudo pacman -S --needed --noconfirm "${pending_official[@]}"
     (( ${#pending_aur[@]} > 0 ))      && yay -S --needed --noconfirm "${pending_aur[@]}"
-    ok "Instalacion de paquetes completada."
+    ok "Package installation complete."
 else
-    ok "Ya tenias todos los paquetes."
+    ok "All packages already installed."
 fi
 
-info "Detectando backend de audio..."
-audio_backend="desconocido"
+info "Detecting audio backend..."
+audio_backend="unknown"
 if   pactl info 2>/dev/null | grep -qi 'PipeWire';   then audio_backend="pipewire"
 elif pactl info 2>/dev/null | grep -qi 'PulseAudio'; then audio_backend="pulseaudio"
 elif pacman -Qq pipewire &>/dev/null;                then audio_backend="pipewire"
@@ -174,37 +174,37 @@ elif pacman -Qq pulseaudio &>/dev/null;              then audio_backend="pulseau
 fi
 case "$audio_backend" in
     pulseaudio)
-        info "PulseAudio detectado."
+        info "PulseAudio detected."
         sudo pacman -S --needed --noconfirm pulseaudio pulseaudio-alsa ;;
     *)
-        if [[ "$audio_backend" == "desconocido" ]]; then
-            audio_backend="pipewire"; warn "Sin backend claro -> uso PipeWire (default Arch)."
+        if [[ "$audio_backend" == "unknown" ]]; then
+            audio_backend="pipewire"; warn "No clear audio backend -> defaulting to PipeWire (Arch default)."
         else
-            info "PipeWire detectado."
+            info "PipeWire detected."
         fi
         sudo pacman -S --needed --noconfirm pipewire pipewire-pulse pipewire-alsa wireplumber ;;
 esac
-ok "Audio (${audio_backend}) listo."
+ok "Audio (${audio_backend}) ready."
 
 # ==================================================================
-#  4 · RE-VERIFICAR INSTALACION
+#  4 · RE-VERIFY INSTALL
 # ==================================================================
-step 4 "Verificando que todo quedo instalado"
+step 4 "Verifying all packages are installed"
 want=( "${official_pkgs[@]}" "${aur_pkgs[@]}" )
 attempt=1
 while :; do
     missing=()
     for p in "${want[@]}"; do pacman -Qq "$p" &>/dev/null || missing+=("$p"); done
     if (( ${#missing[@]} == 0 )); then
-        ok "Todos los paquetes presentes — bucle cerrado."
+        ok "All packages present — loop closed."
         break
     fi
-    warn "Faltan (${#missing[@]}): ${missing[*]}"
+    warn "Missing (${#missing[@]}): ${missing[*]}"
     if (( attempt >= 2 )); then
-        warn "Persisten faltantes tras reintentar. Revisalos a mano."
+        warn "Packages still missing after retry. Check manually."
         break
     fi
-    info "Reintento ${attempt}/1..."
+    info "Retry ${attempt}/1..."
     for p in "${missing[@]}"; do
         if printf '%s\n' "${aur_pkgs[@]}" | grep -qx "$p"; then yay -S --needed --noconfirm "$p" || true
         else sudo pacman -S --needed --noconfirm "$p" || true; fi
@@ -213,19 +213,19 @@ while :; do
 done
 
 # ==================================================================
-#  5 · MOVER ARCHIVOS A SU POSICION
+#  5 · MOVE FILES INTO PLACE
 # ==================================================================
-step 5 "Copiando archivos a su lugar"
+step 5 "Copying files to their destination"
 mkdir -p "$HOME/.config"
 
 if [[ -d "$HOME/.config" ]]; then
     backup="$HOME/.config-r4chi-backup-$(date +%Y%m%d-%H%M%S)"
     cp -r "$HOME/.config" "$backup" 2>/dev/null || true
     [[ -f "$HOME/.zshrc" ]] && cp -f "$HOME/.zshrc" "$backup/.zshrc.bak" 2>/dev/null || true
-    ok "Backup de seguridad: $backup"
+    ok "Safety backup: $backup"
 fi
 
-user_configs=(alacritty btop fastfetch hypr rofi waybar yazi)
+user_configs=(alacritty btop dunst fastfetch hypr rofi waybar yazi)
 for cfg in "${user_configs[@]}"; do
     if [[ -d "$DOTFILES_DIR/.config/$cfg" ]]; then
         rm -rf "${HOME:?}/.config/$cfg"
@@ -234,10 +234,16 @@ for cfg in "${user_configs[@]}"; do
     fi
 done
 [[ -f "$DOTFILES_DIR/.config/.zshrc" ]] && { cp -f "$DOTFILES_DIR/.config/.zshrc" "$HOME/.zshrc"; ok ".zshrc"; }
-[[ -f "$DOTFILES_DIR/usr/share/sddm/faces/.face.icon" ]] && cp -f "$DOTFILES_DIR/usr/share/sddm/faces/.face.icon" "$HOME/.face.icon"
+face_src="$DOTFILES_DIR/usr/share/sddm/faces/root.face.icon"
+if [[ -f "$face_src" ]]; then
+    cp -f "$face_src" "$HOME/.face.icon"
+    ok "Avatar -> ~/.face.icon"
+else
+    warn "Avatar source not found ($face_src); skipping."
+fi
 mkdir -p "$HOME/Pictures/Screenshots"
 
-info "Configuraciones globales (sudo)..."
+info "Global configs (sudo)..."
 if [[ -d "$DOTFILES_DIR/usr/share/backgrounds" ]]; then
     sudo install -d /usr/share/backgrounds
     sudo cp -f "$DOTFILES_DIR/usr/share/backgrounds/"* /usr/share/backgrounds/
@@ -248,57 +254,58 @@ if [[ -d "$DOTFILES_DIR/usr/share/sddm/themes/r4chi-sddm" ]]; then
     sudo cp -r "$DOTFILES_DIR/usr/share/sddm/themes/r4chi-sddm" /usr/share/sddm/themes/
     sudo install -d /etc/sddm.conf.d
     printf '[Theme]\nCurrent=r4chi-sddm\n' | sudo tee /etc/sddm.conf.d/10-theme.conf >/dev/null
-    ok "Tema SDDM r4chi-sddm instalado y activado."
+    ok "SDDM theme r4chi-sddm installed and activated."
 fi
 if [[ -f "$DOTFILES_DIR/usr/share/zsh/site-functions/_awww" ]]; then
     sudo install -Dm644 "$DOTFILES_DIR/usr/share/zsh/site-functions/_awww" /usr/share/zsh/site-functions/_awww
-    ok "Completion zsh de awww."
+    ok "awww zsh completion."
 fi
-systemctl list-unit-files sddm.service &>/dev/null && { sudo systemctl enable sddm.service >/dev/null 2>&1; ok "SDDM habilitado."; }
+systemctl list-unit-files sddm.service &>/dev/null && { sudo systemctl enable sddm.service >/dev/null 2>&1; ok "SDDM enabled."; }
 
 zsh_path="$(command -v zsh || true)"
 if [[ -n "$zsh_path" && "${SHELL:-}" != "$zsh_path" ]]; then
-    if chsh -s "$zsh_path"; then ok "Shell por defecto -> zsh"; else warn "Cambia la shell a mano: chsh -s $zsh_path"; fi
+    if chsh -s "$zsh_path"; then ok "Default shell -> zsh"; else warn "Change shell manually: chsh -s $zsh_path"; fi
 fi
 
 rpc="$HOME/.config/hypr/scripts"
 if [[ -f "$rpc/audacious_discord.py" ]]; then
     python -m venv "$rpc/audacious-rpc-env" &
-    spin $! "Creando venv de Audacious RPC..."
+    spin $! "Creating Audacious RPC venv..."
     "$rpc/audacious-rpc-env/bin/pip" install --quiet --upgrade pip pypresence &
-    spin $! "Instalando pypresence..."
+    spin $! "Installing pypresence..."
 fi
 
 # ==================================================================
-#  6 · VERIFICAR UBICACION DE LOS ARCHIVOS
+#  6 · VERIFY FILE LOCATIONS
 # ==================================================================
-step 6 "Verificando ubicacion de los archivos"
-check() { if [[ -e "$1" ]]; then ok "$2"; else err "FALTA: $2 ($1)"; FILE_ERR=1; fi; }
+step 6 "Verifying file locations"
+check() { if [[ -e "$1" ]]; then ok "$2"; else err "MISSING: $2 ($1)"; FILE_ERR=1; fi; }
 FILE_ERR=0
 check "$HOME/.config/hypr/hyprland.lua"            "Hyprland (Lua)"
 check "$HOME/.config/waybar/config.jsonc"          "Waybar config"
-check "$HOME/.config/rofi/themes/r4chi.rasi"       "Rofi tema r4chi"
+check "$HOME/.config/rofi/themes/r4chi.rasi"       "Rofi r4chi theme"
 check "$HOME/.config/alacritty/alacritty.toml"     "Alacritty"
 check "$HOME/.config/yazi/theme.toml"              "Yazi"
 check "$HOME/.zshrc"                                "Zsh rc"
 check "/usr/share/backgrounds/reiwal.png"          "Wallpaper"
-check "/usr/share/sddm/themes/r4chi-sddm/Main.qml" "Tema SDDM"
-check "/etc/sddm.conf.d/10-theme.conf"             "SDDM activado"
-if (( FILE_ERR == 0 )); then ok "Todos los archivos en su lugar."; else warn "Algun archivo falto (ver arriba)."; fi
+check "/usr/share/sddm/themes/r4chi-sddm/Main.qml" "SDDM theme"
+check "/etc/sddm.conf.d/10-theme.conf"             "SDDM activated"
+check "$HOME/.config/dunst/dunstrc"                "Dunst config"
+if (( FILE_ERR == 0 )); then ok "All files in place."; else warn "Some file is missing (see above)."; fi
 
 # ==================================================================
-#  7 · PERMISOS chmod +x
+#  7 · EXECUTE PERMISSIONS
 # ==================================================================
-step 7 "Permisos de ejecucion a los scripts"
+step 7 "Execution permissions for scripts"
 n=0
 while IFS= read -r -d '' f; do chmod +x "$f"; n=$(( n + 1 )); done \
     < <(find "$HOME/.config/hypr" "$HOME/.config/rofi" "$HOME/.config/waybar" -type f \( -name '*.sh' -o -name '*.py' \) -print0 2>/dev/null)
-ok "chmod +x aplicado a $n scripts."
+ok "chmod +x applied to $n scripts."
 
 # ==================================================================
-#  8 · RESOLUCION Y ESCALADO
+#  8 · RESOLUTION & SCALING
 # ==================================================================
-step 8 "Resolucion de pantalla y escalado"
+step 8 "Screen resolution and scaling"
 res=""
 if command -v hyprctl &>/dev/null && hyprctl monitors -j &>/dev/null; then
     res="$(hyprctl monitors -j 2>/dev/null | grep -oE '"width": [0-9]+|"height": [0-9]+' | grep -oE '[0-9]+' | paste -sd x - | cut -d x -f1-2)"
@@ -308,9 +315,9 @@ res_w="${res%x*}"; res_w="${res_w//[!0-9]/}"
 res_h="${res#*x}"; res_h="${res_h//[!0-9]/}"
 
 if [[ -z "$res_w" ]]; then
-    warn "No pude detectar la resolucion; dejo escalado por defecto (1080p)."
+    warn "Could not detect resolution; leaving default scaling (1080p)."
 else
-    info "Resolucion detectada: ${res_w}x${res_h}"
+    info "Detected resolution: ${res_w}x${res_h}"
     factor=""
     if   (( res_w == 1920 )); then factor=""
     elif (( res_w >= 3840 )); then factor="1.5"
@@ -319,9 +326,9 @@ else
     else factor=""; fi
 
     if [[ -z "$factor" ]]; then
-        ok "Resolucion estandar (1920x1080) o cercana — sin escalado."
+        ok "Standard resolution (1920x1080) or close — no scaling."
     else
-        info "Aplicando escalado x${factor} a rofi y waybar..."
+        info "Applying x${factor} scaling to rofi and waybar..."
         wstyle="$HOME/.config/waybar/style.css"; wcfg="$HOME/.config/waybar/config.jsonc"
         [[ -f "$wstyle" ]] && awk -v f="$factor" '{
             if ($0 ~ /font-size:[ \t]*[0-9]+px/ && match($0,/[0-9]+px/)) {
@@ -349,20 +356,20 @@ else
                 } print
             }' "$rf" > "$rf.tmp" && mv "$rf.tmp" "$rf"
         done
-        ok "Rofi y waybar escalados (font/height x${factor})."
+        ok "Rofi and waybar scaled (font/height x${factor})."
     fi
 fi
 
 # ==================================================================
-#  9 · CHEQUEO GENERAL
+#  9 · GENERAL CHECK
 # ==================================================================
-step 9 "Chequeo general"
+step 9 "General check"
 GEN_OK=1
 need() {
     if command -v "$1" &>/dev/null; then
-        ok "$2 presente"
+        ok "$2 present"
     else
-        if [[ "${3:-}" == "warn" ]]; then warn "$2 ausente"; else err "$2 ausente"; fi
+        if [[ "${3:-}" == "warn" ]]; then warn "$2 not found"; else err "$2 not found"; fi
         GEN_OK=0
     fi
 }
@@ -370,25 +377,25 @@ need hyprland "hyprland"
 need waybar   "waybar"
 need awww     "awww" warn
 need sddm     "sddm"
-if [[ -f "$HOME/.config/hypr/hyprland.lua" ]]; then ok "config Hyprland en su lugar"; else err "falta hyprland.lua"; GEN_OK=0; fi
+if [[ -f "$HOME/.config/hypr/hyprland.lua" ]]; then ok "Hyprland config in place"; else err "hyprland.lua not found"; GEN_OK=0; fi
 fc-cache -f >/dev/null 2>&1 || true
-ok "Cache de fuentes regenerada."
-if (( GEN_OK == 1 )); then ok "Chequeo general: TODO OK."; else warn "Chequeo general con observaciones (ver arriba)."; fi
+ok "Font cache rebuilt."
+if (( GEN_OK == 1 )); then ok "General check: ALL OK."; else warn "General check with warnings (see above)."; fi
 
 # ==================================================================
-#  10 · FIN
+#  10 · DONE
 # ==================================================================
 printf '\n'; rule
-printf ' %s%s  ✓  INSTALACION r4chi COMPLETA  %s\n' "$BOLD" "$GREEN" "$RESET"
+printf ' %s%s  ✓  r4chi INSTALL COMPLETE  %s\n' "$BOLD" "$GREEN" "$RESET"
 rule
-printf '   %s•%s Todo fue copiado: ya podes borrar este repo.\n' "$ACCENT" "$RESET"
-printf '   %s•%s p10k se autoinstala con zinit al abrir zsh por primera vez.\n' "$ACCENT" "$RESET"
-printf '   %s•%s Backend de audio: %s%s%s\n' "$ACCENT" "$RESET" "$TEXT" "$audio_backend" "$RESET"
+printf '   %s•%s Everything copied: you can safely delete this repo.\n' "$ACCENT" "$RESET"
+printf '   %s•%s p10k auto-installs via zinit on first zsh launch.\n' "$ACCENT" "$RESET"
+printf '   %s•%s Audio backend: %s%s%s\n' "$ACCENT" "$RESET" "$TEXT" "$audio_backend" "$RESET"
 
-if ask_yn "Reiniciar ahora para entrar por SDDM a Hyprland?"; then
-    info "Reiniciando..."
+if ask_yn "Restart now to boot into SDDM/Hyprland?"; then
+    info "Restarting..."
     sleep 1
     sudo systemctl reboot
 else
-    ok "Listo. Reinicia cuando quieras: 'sudo systemctl reboot'."
+    ok "Done. Restart whenever you are ready: 'sudo systemctl reboot'."
 fi

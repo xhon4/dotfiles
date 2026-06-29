@@ -1,29 +1,21 @@
 # ============================================================
 #  packages.txt  —  r4chi-dotfiles
-# ------------------------------------------------------------
-#  Formato:
-#    - Lineas que empiezan con '#' o vacias se ignoran.
-#    - Todo lo que esta ANTES de '### AUR ###' se instala con pacman.
-#    - Todo lo que esta DESPUES de '### AUR ###' se instala con yay.
-#
-#  NOTA: los paquetes de audio (pipewire / pulseaudio) NO van aqui:
-#  install.sh detecta cual usa el sistema y los instala aparte.
 # ============================================================
 
-# --- Compositor / sesion Wayland ---
+# --- Compositor / Wayland session ---
 hyprland
 hypridle
 xdg-desktop-portal-hyprland
 qt5-wayland
 qt6-wayland
 
-# --- Barra / lanzador / notificaciones / terminal ---
+# --- Bar / launcher / notifications / terminal ---
 waybar
 rofi
 dunst
 alacritty
 
-# --- Shell y utilidades de terminal ---
+# --- Shell and terminal utilities ---
 zsh
 git
 base-devel
@@ -35,35 +27,35 @@ fastfetch
 btop
 yazi
 
-# --- Gestor de archivos / multimedia (RPC de Audacious) ---
+# --- File manager / multimedia ---
 audacious
 
-# --- Captura de pantalla / portapapeles ---
+# --- Screenshot / clipboard ---
 grim
 slurp
 wl-clipboard
 
-# --- Control de audio (agnostico de backend) ---
+# --- Audio control ---
 pamixer
 pavucontrol
 playerctl
 
-# --- Red ---
+# --- Network ---
 network-manager-applet
 
-# --- Daemon de wallpaper (esta en repos OFICIALES/extra; reemplaza a swww) ---
+# --- Wallpaper daemon ---
 awww
 
-# --- Display manager y dependencias QML del tema SDDM ---
+# --- Display manager and SDDM theme QML dependencies ---
 sddm
 qt6-declarative
 qt6-svg
 qt6-virtualkeyboard
 
-# --- Python (venv del RPC de Audacious) ---
+# --- Python ---
 python
 
-# --- Fuentes (esteticas: Terminus, Nerd Fonts, iconos) ---
+# --- Fonts ---
 terminus-font
 ttf-jetbrains-mono-nerd
 ttf-iosevka-nerd
@@ -76,9 +68,9 @@ noto-fonts-emoji
 
 ### AUR ###
 
-# --- Sincronizacion Google Calendar (modulo de Waybar) ---
+# --- Google Calendar sync ---
 gcalcli
 
-# --- Fuentes desde AUR ---
+# --- Fonts from AUR ---
 ttf-material-design-icons-desktop-git
 otf-departure-mono

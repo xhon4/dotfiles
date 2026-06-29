@@ -1,22 +1,22 @@
 # r4chi-dotfiles · by occhi
 
-# Claude Code (no es parte del ricing)
+# Claude Code
 .claude/
 
-# Entorno Python del RPC de Audacious (lo recrea install.sh)
+# Audacious RPC venv
 **/audacious-rpc-env/
 
-# Estado generado en runtime
+# Runtime-generated state
 **/emote_stats.txt
 **/__pycache__/
 *.pyc
 
-# Backups / temporales
+# Backups / temporary files
 *.bak
 *.save
 *.tmp
 *.swp
 
-# Cache de p10k / historial de zsh
+# p10k cache / zsh history
 .p10k.zsh
 .zsh_history
