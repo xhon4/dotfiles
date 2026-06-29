@@ -18,8 +18,9 @@
 ---
 ## ✦ ART CREDITS!!! ^
 
-Wallpaper is a screenshot of [雨予報、君と / 足立レイ](https://www.youtube.com/watch?v=attdDLZGN_8&list=RDattdDLZGN_8&start_radio=1) by 現世欠落.
-Lockscreen wallpaper drawed by [@Geobook2_da](https://x.com/Geobook2_da/status/1993224758696329319/photo/1) on twt
+>Wallpaper is a screenshot of [雨予報、君と / 足立レイ](https://www.youtube.com/watch?v=attdDLZGN_8&list=RDattdDLZGN_8&start_radio=1) by 現世欠落.
+
+>Lockscreen wallpaper drawed by [@Geobook2_da](https://x.com/Geobook2_da/status/1993224758696329319/photo/1) on twt
 
 ## ✦ Preview
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b07d83a1-33ac-485b-b080-3a993ef084ea" />
