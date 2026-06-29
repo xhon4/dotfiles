@@ -1,0 +1,107 @@
+/* r4chi-dotfiles · by occhi */
+
+* {
+        font: "JetBrainsMono Nerd Font 12, Terminus 12";
+
+    background:    #0B0B0B;
+    foreground:    #1e42af;
+    selected-bg:   #0D2E8F;
+    selected-fg:   #cbe2e6;
+    danger:        #fe6e08;
+    dim:           #565250;
+
+    text-color: @foreground;
+}
+
+/* Window */
+window {
+    background-color: @background;
+    location: center;
+    width: 400px;
+    border: 0px 0px 0px 3px;
+    border-color: @danger;
+    border-radius: 0px;
+    padding: 14px;
+}
+
+/* Mainbox */
+mainbox {
+    background-color: @background;
+    border: 0px;
+    padding: 0px;
+    spacing: 12px;
+}
+
+/* Inputbar */
+inputbar {
+    spacing: 0;
+    background-color: @background;
+    border: 0px 0px 2px 0px;
+    border-color: @danger;
+    border-radius: 0px;
+    padding: 6px 5px;
+    children: [ prompt, entry ];
+}
+
+/* Prompt */
+prompt {
+    padding: 5px;
+    background-color: @background;
+    text-color: @danger;
+}
+
+/* Entry */
+entry {
+    background-color: @background;
+    text-color: @foreground;
+    padding: 5px;
+}
+
+/* Message */
+message, textbox {
+    background-color: @background;
+    text-color: @dim;
+    border: 0px;
+    padding: 4px 5px;
+}
+
+/* Listview */
+listview {
+    spacing: 2px;
+    padding: 6px 0px 0px 0px;
+    background-color: @background;
+    border: 0px;
+    lines: 5;
+    fixed-height: true;
+    dynamic: false;
+    scrollbar: false;
+}
+
+/* Element */
+element {
+    padding: 10px;
+    background-color: @background;
+    text-color: @foreground;
+    border: 0px;
+}
+
+element selected {
+    background-color: @selected-bg;
+    text-color: @selected-fg;
+    border: 0px;
+}
+
+/* Element text / icon */
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+    padding: 0px;
+}
+
+element-icon {
+    padding: 0px;
+    background-color: transparent;
+    text-color: transparent;
+    size: 0px;
+    border: 0px;
+}

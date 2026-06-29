@@ -1,0 +1,84 @@
+# ============================================================
+#  packages.txt  —  r4chi-dotfiles
+# ------------------------------------------------------------
+#  Formato:
+#    - Lineas que empiezan con '#' o vacias se ignoran.
+#    - Todo lo que esta ANTES de '### AUR ###' se instala con pacman.
+#    - Todo lo que esta DESPUES de '### AUR ###' se instala con yay.
+#
+#  NOTA: los paquetes de audio (pipewire / pulseaudio) NO van aqui:
+#  install.sh detecta cual usa el sistema y los instala aparte.
+# ============================================================
+
+# --- Compositor / sesion Wayland ---
+hyprland
+hypridle
+xdg-desktop-portal-hyprland
+qt5-wayland
+qt6-wayland
+
+# --- Barra / lanzador / notificaciones / terminal ---
+waybar
+rofi
+dunst
+alacritty
+
+# --- Shell y utilidades de terminal ---
+zsh
+git
+base-devel
+eza
+bat
+fzf
+jq
+fastfetch
+btop
+yazi
+
+# --- Gestor de archivos / multimedia (RPC de Audacious) ---
+audacious
+
+# --- Captura de pantalla / portapapeles ---
+grim
+slurp
+wl-clipboard
+
+# --- Control de audio (agnostico de backend) ---
+pamixer
+pavucontrol
+playerctl
+
+# --- Red ---
+network-manager-applet
+
+# --- Daemon de wallpaper (esta en repos OFICIALES/extra; reemplaza a swww) ---
+awww
+
+# --- Display manager y dependencias QML del tema SDDM ---
+sddm
+qt6-declarative
+qt6-svg
+qt6-virtualkeyboard
+
+# --- Python (venv del RPC de Audacious) ---
+python
+
+# --- Fuentes (esteticas: Terminus, Nerd Fonts, iconos) ---
+terminus-font
+ttf-jetbrains-mono-nerd
+ttf-iosevka-nerd
+otf-font-awesome
+ttf-nerd-fonts-symbols
+ttf-nerd-fonts-symbols-mono
+ttf-inconsolata
+noto-fonts
+noto-fonts-emoji
+
+### AUR ###
+
+# --- Sincronizacion Google Calendar (modulo de Waybar) ---
+gcalcli
+
+# --- Fuentes desde AUR ---
+ttf-material-design-icons-desktop-git
+otf-departure-mono

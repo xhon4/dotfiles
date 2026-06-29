@@ -1,0 +1,66 @@
+# r4chi-dotfiles · by occhi
+
+[font]
+normal = { family = "Departure Mono", style = "Regular" }
+bold   = { family = "Departure Mono", style = "Regular" }
+italic = { family = "Departure Mono", style = "Regular" }
+size = 11.0
+
+[colors]
+draw_bold_text_with_bright_colors = false
+
+[colors.primary]
+background = "#0A0708"
+foreground = "#cbe2e6"
+
+[colors.cursor]
+text   = "#0A0708"
+cursor = "#cbe2e6"
+
+[colors.selection]
+text       = "#0B0B0B"
+background = "#A99C9D"
+
+[colors.normal]
+black   = "#0A0708"
+red     = "#F5582D"
+green   = "#AA8C75"
+yellow  = "#0D2E8F"
+blue    = "#243083"
+magenta = "#4E6C92"
+cyan    = "#F5582D"
+white   = "#cbe2e6"
+
+[colors.bright]
+black   = "#8e9ea1"
+red     = "#F5582D"
+green   = "#AA8C75"
+yellow  = "#0D2E8F"
+blue    = "#243083"
+magenta = "#4E6C92"
+cyan    = "#B9A4A8"
+white   = "#cbe2e6"
+
+[colors.search.matches]
+foreground = "#0B0B0B"
+background = "#758A87"
+
+[colors.search.focused_match]
+foreground = "#0B0B0B"
+background = "#B69F64"
+
+[cursor]
+style = { shape = "Block", blinking = "Always" }
+blink_interval = 700
+blink_timeout  = 0
+
+[window]
+padding = { x = 18, y = 14 }
+decorations = "none"
+dynamic_title = true
+opacity = 0.85
+
+[[keyboard.bindings]]
+key = "Return"
+mods = "Shift"
+chars = "\u001B\r"

@@ -1,0 +1,108 @@
+/* r4chi-dotfiles · by occhi */
+
+* {
+    background:    #0B0B0B;
+    foreground:    #fe6e08;
+    selected-bg:   #0D2E8F;
+    selected-fg:   #cbe2e6;
+    accent:        #0D2E8F;
+    dim:           #565250;
+    border-col:    #2e2c33;
+
+    font: "JetBrainsMono Nerd Font 12, Terminus 12";
+    text-color: @foreground;
+}
+
+/* Window */
+window {
+    background-color: @background;
+    border: 0px 0px 0px 3px;
+    border-color: @accent;
+    border-radius: 0px;
+    padding: 12px;
+    width: 600px;
+}
+
+/* Mainbox */
+mainbox {
+    background-color: @background;
+    border: 0px;
+    padding: 0px;
+    spacing: 10px;
+}
+
+/* Inputbar */
+inputbar {
+    spacing: 0;
+    background-color: @background;
+    border: 0px 0px 2px 0px;
+    border-color: @accent;
+    border-radius: 0px;
+    padding: 6px 5px;
+    children: [ prompt, entry ];
+}
+
+/* Prompt */
+prompt {
+    padding: 5px 8px 5px 5px;
+    background-color: @background;
+    text-color: @accent;
+}
+
+/* Entry */
+entry {
+    background-color: @background;
+    text-color: @foreground;
+    padding: 5px;
+    placeholder: "buscar...";
+    placeholder-color: @dim;
+}
+
+/* Listview */
+listview {
+    spacing: 2px;
+    padding: 8px 0px 0px 0px;
+    background-color: @background;
+    border: 0px;
+    columns: 1;
+}
+
+/* Element */
+element {
+    padding: 6px 8px;
+    background-color: @background;
+    text-color: @foreground;
+    border: 0px;
+    spacing: 10px;
+    border-radius: 0px;
+}
+
+element normal active {
+    text-color: @accent;
+}
+
+element selected {
+    background-color: @selected-bg;
+    text-color: @selected-fg;
+    border: 0px;
+}
+
+element selected active {
+    background-color: @selected-bg;
+    text-color: @selected-fg;
+}
+
+/* Element text / icon */
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+    vertical-alignment: 0.5;
+    padding: 0px;
+}
+
+element-icon {
+    background-color: transparent;
+    size: 1.2em;
+    padding: 0px 8px 0px 0px;
+    border: 0px;
+}

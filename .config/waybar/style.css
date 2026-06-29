@@ -1,0 +1,158 @@
+/* r4chi-dotfiles · by occhi */
+
+* {
+    font-family: "Tahoma", "Verdana", "Iosevka Nerd Font", "Material Design Icons Desktop", "Font Awesome 6 Free Solid", sans-serif;
+    font-size: 13px;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    margin: 0;
+    min-height: 0;
+    box-shadow: none;
+    transition: none;
+}
+
+window#waybar {
+    background-color: #0B0B0B;
+    color: #101010;
+    border-bottom: 2px solid #2e2c33;
+}
+
+.modules-left,
+.modules-center,
+.modules-right {
+    background-color: transparent;
+}
+
+/* ── Launcher ──────────────────────────────────────────────────────────── */
+#custom-launcher {
+    color: #EFEFEF;
+    background-color: #F6592E;
+    padding: 0 12px;
+    margin-right: 2px;
+    font-weight: bold;
+    border-right: 2px solid #B34700;
+    border-bottom: 2px solid #B34700;
+}
+
+/* ── Separadores ───────────────────────────────────────────────────────── */
+#custom-sep,
+#custom-sep2 {
+    color: #96969A;
+    padding: 0;
+    font-weight: bold;
+}
+
+/* ── Workspaces ────────────────────────────────────────────────────────── */
+#workspaces {
+    background: transparent;
+    padding: 0 4px;
+}
+
+#workspaces button {
+    color: #96969A;
+    background: transparent;
+    padding: 0 8px;
+    min-width: 0;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+#workspaces button.active {
+    color: #F6592E;
+    text-shadow: 1px 1px 0px #F27405;
+}
+
+#workspaces button:not(.active):not(.empty) {
+    color: #7A3A00;
+}
+
+#workspaces button.urgent {
+    color: #EFEFEF;
+    background-color: #F5582D;
+    border: 1px solid #B34700;
+}
+
+#workspaces button:hover {
+    color: #0D2E8F;
+    text-decoration: underline;
+    background: transparent;
+}
+
+/* ── Window ────────────────────────────────────────────────────────────── */
+#window {
+    color: #101010;
+    padding: 0 6px;
+    font-weight: bold;
+}
+
+#window.empty {
+    color: #96969A;
+}
+
+/* ── Spotify ───────────────────────────────────────────────────────────── */
+#custom-spotify {
+    color: #7A3A00;
+    padding: 0 6px;
+}
+
+#custom-spotify.playing {
+    color: #F6592E;
+    font-weight: bold;
+}
+
+#custom-spotify.paused,
+#custom-spotify.stopped {
+    color: #96969A;
+}
+
+/* ── Hardware ──────────────────────────────────────────────────────────── */
+#cpu, #memory, #pulseaudio {
+    color: #cbe2e6;
+    padding: 0 8px;
+    margin: 4px 2px;
+    }
+
+#pulseaudio.muted {
+    color: #EFEFEF;
+    background-color: #D58304;
+    border-color: #7A3A00;
+}
+
+/* ── Tray ──────────────────────────────────────────────────────────────── */
+#tray {
+    padding: 0 4px;
+    margin-right: 2px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+}
+
+/* ── Reloj ─────────────────────────────────────────────────────────────── */
+#custom-clock {
+    color: #EFEFEF;
+    background-color: #0D2E8F;
+    padding: 0 12px;
+    font-weight: bold;
+    border-left: 2px solid #A0D3D9;
+    border-bottom: 2px solid #101010;
+}
+
+/* ── Tooltip ───────────────────────────────────────────────────────────── */
+tooltip {
+    background-color: #EFEFEF;
+    border: 2px solid #0D2E8F;
+    padding: 8px 10px;
+    color: #101010;
+}
+
+tooltip label {
+    font-family: "Courier New", "Iosevka Nerd Font", monospace;
+    font-size: 13px;
+    color: #101010;
+}

@@ -1,0 +1,13 @@
+/* r4chi-dotfiles · by occhi */
+
+configuration {
+    modi: "drun,run,window,ssh";
+    font: "Inconsolata Semi Condensed Bold 11, Iosevka Nerd Font 11";
+    show-icons: true;
+    icon-theme: "Papirus-Dark";
+    location: 0;
+    opacity: 90;
+    sidebar-mode: false;
+}
+
+@theme "~/.config/rofi/themes/r4chi.rasi"
