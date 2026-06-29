@@ -16,10 +16,23 @@
 </div>
 
 ---
+## ✦ ART CREDITS!!! ^
+
+Wallpaper is a screenshot of [雨予報、君と / 足立レイ](https://www.youtube.com/watch?v=attdDLZGN_8&list=RDattdDLZGN_8&start_radio=1) by 現世欠落.
+Lockscreen wallpaper drawed by [@Geobook2_da](https://x.com/Geobook2_da/status/1993224758696329319/photo/1) on twt
 
 ## ✦ Preview
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b07d83a1-33ac-485b-b080-3a993ef084ea" />
 
-> _Add your screenshots here_ — `assets/preview.png`
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/2be1b0a5-aa71-4998-a03b-2caa8440597d" />
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/9187f297-884c-41dd-b2b9-0ff9b33d2f0c" />
+
+<img width="605" height="584" alt="image" src="https://github.com/user-attachments/assets/adee7398-b56f-4d25-a4d4-5fa40e229fcc" />
+
+<img width="457" height="308" alt="image" src="https://github.com/user-attachments/assets/ce6ea9d0-09bb-473c-a137-e54cca8386a0" />
+
+
 
 ---
 
@@ -85,22 +98,6 @@ hl.monitor({ output = "DP-1", mode = "2560x1440@144", position = "auto", scale =
 
 ---
 
-## ✦ Palette
-
-| Color | Hex |
-|---|---|
-| Background | `#0A0708` |
-| Text | `#cbe2e6` |
-| Accent | `#F5582D` / `#F6592E` |
-| Blue | `#0D2E8F` / `#243083` |
-| Tan | `#AA8C75` |
-
-## ✦ Fonts
-
-`Terminus` · `JetBrainsMono Nerd Font` · `Iosevka Nerd Font` · `Inconsolata` · `Departure Mono` · `Material Design Icons` · `Font Awesome`
-
----
-
 ## ✦ Keybinds (mod = `SUPER`)
 
 | Key | Action |
@@ -145,8 +142,6 @@ install.sh · packages.txt
 
 - **No lockscreen**: locking goes through SDDM / `loginctl`, no Hyprlock used.
 - **Powerlevel10k** auto-installs via zinit on first zsh launch (uses terminal colors).
-- **awww** replaces swww (in Arch official repos).
-- The **gaming** profile (VRR, tearing, rules) lives in `hypr/gaming.lua`; enable it with `require("gaming")` from `hyprland.lua`.
 
 ---
 
